@@ -2,7 +2,7 @@
 // src/Pages/AgentIAN.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { BotMessageSquare, Bot, Send, Trash2, User, Info, ExternalLink } from 'lucide-react';
-import { getRecommendations } from '../Services/api.js';
+import { getRecommendations } from '../services/api.js';
 
 export default function AgentIAN() {
   const [query, setQuery] = useState('');

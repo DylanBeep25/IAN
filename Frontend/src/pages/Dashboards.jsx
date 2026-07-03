@@ -1,7 +1,7 @@
 //Lista todos los tableros y el buscador
 import React, { useState, useEffect } from 'react';
 import { Search, LayoutGrid, Eye, ExternalLink, Loader2 } from 'lucide-react';
-import { getAllDashboards } from '../Services/api.js';
+import { getAllDashboards } from '../services/api.js';
 import ModalDetails from '../components/ModalDetails.jsx';
 import DashboardCard from '../components/DashboardCard.jsx';
 
