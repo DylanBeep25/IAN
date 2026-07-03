@@ -1,0 +1,156 @@
+// src/tableros/tablero.controller.js
+import { parsearCSVCompleto } from '../../utils/csvParser.js';
+import { getLocalRecommendations } from '../../utils/searchEngine.js';
+import { formatMarkdownText } from '../../utils/helpers.js';
+import { consultarGeminiEnServidor } from '../../utils/geminiClient.js';
+
+// --- FUNCIÓN REUTILIZABLE PARA NO REPETIR CÓDIGO ---
+function mapearFilasATableros(todasLasFilas) {
+    if (todasLasFilas.length === 0) return [];
+
+    const encabezados = todasLasFilas[0].map(enc => {
+        let limpio = enc.trim().toLowerCase();
+        if (limpio === 'codigo') return 'codigo';
+        if (limpio === 'nombre') return 'nombre';
+        if (limpio === 'pais') return 'pais';
+        if (limpio === 'area') return 'area';
+        if (limpio === 'descripcion') return 'descripcion';
+        if (limpio === 'url') return 'url';
+        if (limpio === 'responsable') return 'responsable';
+        if (limpio === 'frecuencia') return 'frecuencia';
+        if (limpio === 'preguntas') return 'preguntas';
+        if (limpio === 'cuando usar' || limpio === 'cuandousar') return 'cuandoUsar';
+        if (limpio === 'cuando no usar' || limpio === 'cuandonousar') return 'cuandoNoUsar';
+        if (limpio === 'keywords') return 'keywords';
+        if (limpio === 'kpis') return 'kpis';
+        if (limpio === 'resumen ia' || limpio === 'resumenia') return 'resumenIA';
+        return limpio;
+    });
+    
+    const tableros = [];
+    const totalEncabezados = encabezados.length;
+    
+    for (let i = 1; i < todasLasFilas.length; i++) {
+        const valores = todasLasFilas[i];
+        if (valores.length < totalEncabezados) continue;
+        
+        const filaObjeto = {};
+        
+        // Optimización: Bucle for clásico en lugar de forEach (es mucho más rápido en Node)
+        for (let j = 0; j < totalEncabezados; j++) {
+            const encabezado = encabezados[j];
+            let valorOriginal = valores[j] ? valores[j].trim() : "";
+            
+            if (encabezado === 'preguntas' || encabezado === 'cuandoUsar' || encabezado === 'cuandoNoUsar' || encabezado === 'keywords') {
+                filaObjeto[encabezado] = valorOriginal !== "" ? valorOriginal.split('|').map(item => item.trim()) : [];
+            } 
+            // 💡 REEMPLAZO DE ALTO RENDIMIENTO PARA KPIs: Evitamos 'new Function'
+            else if (encabezado === 'kpis') {
+                if (valorOriginal !== "") {
+                    try {
+                        // Limpiamos las comillas dobles repetidas que genera el CSV de Sheets
+                        let stringLimpio = valorOriginal.replace(/""/g, '"');
+            
+                        // Eliminamos comillas externas si existen
+                        if (stringLimpio.startsWith('"') && stringLimpio.endsWith('"')) {
+                            stringLimpio = stringLimpio.slice(1, -1);
+                        }
+
+                        // 'new Function' convierte el string de objeto JS en un objeto real
+                        // return (...) envuelve la expresión para que la función devuelva el objeto
+                        filaObjeto[encabezado] = new Function(`return ${stringLimpio}`)();
+                    } catch (e) {
+                        console.error("Error parseando KPIS: ", e, "Valor original: ", valorOriginal)
+                        filaObjeto[encabezado] = [];
+                    }
+                } else {
+                    filaObjeto[encabezado] = []; 
+                }
+            } 
+            else {
+                filaObjeto[encabezado] = valorOriginal;
+            }
+        }
+        
+        if (!filaObjeto.codigo || !filaObjeto.nombre || filaObjeto.preguntas.length === 0) {
+            continue; 
+        }
+        
+        tableros.push(filaObjeto);
+    }
+    return tableros;
+}
+
+// 1. ENDPOINT PARA LISTAR
+export const getTableros = async (req, res) => {
+    const URL_CSV_TABLEROS = process.env.URL_CSV_TABLEROS;
+    try {
+        const response = await fetch(URL_CSV_TABLEROS);
+        const dataText = await response.text();
+        
+        const todasLasFilas = parsearCSVCompleto(dataText);
+        const tableros = mapearFilasATableros(todasLasFilas);
+
+        return res.status(200).json({
+            message: "Tableros obtenidos exitosamente",
+            data: tableros
+        });
+    } catch (error) {
+        console.error("Error al obtener tableros:", error);
+        return res.status(500).json({ message: "Error interno del servidor" });
+    }
+};
+
+// 2. ENDPOINT PARA RECOMENDAR
+export const dashboardRecomendation = async (req, res) => {
+    const URL_CSV_TABLEROS = process.env.URL_CSV_TABLEROS;
+    const URL_CSV_SINONIMOS = process.env.URL_CSV_SINONIMOS;
+
+    try {
+        const { prompt } = req.body; 
+        if (!prompt) return res.status(400).json({ message: "El prompt es requerido" });
+
+        // 1. Descargas en paralelo de fuentes desde Sheets
+        const [resTableros, resSinonimos] = await Promise.all([
+            fetch(URL_CSV_TABLEROS),
+            fetch(URL_CSV_SINONIMOS)
+        ]);
+
+        const tablerosProcesados = mapearFilasATableros(parsearCSVCompleto(await resTableros.text())); 
+        const todasLasFilasSinonimos = parsearCSVCompleto(await resSinonimos.text());
+        const sinonimosProcesados = todasLasFilasSinonimos.slice(1).map(v => ({
+            termino: v[0]?.trim() || "",
+            significado: v[1]?.trim() || ""
+        }));
+
+        // 2. Obtener las tarjetas usando tu motor algorítmico por tokens
+        const tarjetasRecomendadas = getLocalRecommendations(prompt, tablerosProcesados, sinonimosProcesados);
+
+        let respuestaIA = "";
+
+        try {
+            // 💡 3. Intentamos llamar a Gemini con los datos seguros en el servidor
+            respuestaIA = await consultarGeminiEnServidor(prompt, tablerosProcesados, sinonimosProcesados);
+        } catch (geminiError) {
+            console.error("La API de Gemini falló en servidor, activando recomendación algorítmica:", geminiError);
+            
+            // Fallback de emergencia local si la IA no responde:
+            if (tarjetasRecomendadas.length === 0) {
+                respuestaIA = "Como tu asistente estoy preparado para indicarte tableros, perdona si no tengo una respuesta para eso.";
+            } else {
+                const principal = tarjetasRecomendadas[0];
+                respuestaIA = `*(Sugerencia generada por motor de respaldo)* He ubicado el directorio analítico ideal para tu consulta. Te recomiendo revisar el tablero <strong>${principal.nombre}</strong>. El mismo permite realizar el ${principal.descripcion.toLowerCase()} Es actualizado con frecuencia ${principal.frecuencia.toLowerCase()} bajo la responsabilidad del área de ${principal.responsable.toLowerCase()}.`;
+            }
+        }
+
+        // 4. Formatear la respuesta final
+        return res.status(200).json({
+            message: respuestaIA, // Texto final (Venga de Gemini o del motor local de respaldo)
+            data: tarjetasRecomendadas // Las tarjetas interactivas mapeadas
+        });
+
+    } catch (error) {
+        console.error("Error crítico en el motor de recomendaciones:", error);
+        return res.status(500).json({ message: "Error interno del servidor" });
+    }
+};

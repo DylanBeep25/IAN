@@ -1,0 +1,41 @@
+{
+  "name": "ian",
+  "version": "1.0.0",
+  "description": "IAN chatbot for recomendate dashbords",
+  "keywords": [
+    "ian",
+    "chatbot",
+    "admosa",
+    "dashboard"
+  ],
+  "homepage": "https://github.com/DylanBeep25/IAN#readme",
+  "bugs": {
+    "url": "https://github.com/DylanBeep25/IAN/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DylanBeep25/IAN.git"
+  },
+  "license": "MIT",
+  "author": "DJ (Dylan Julian)",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
+    "http": "^0.0.1-security",
+    "morgan": "^1.11.0",
+    "path": "^0.12.7",
+    "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
