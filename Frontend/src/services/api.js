@@ -2,7 +2,7 @@ import axios from "axios";
 
 const apiDashboard = axios.create({
     baseURL: 'https://ian-4xua.onrender.com',
-    timeout: 30000
+    timeout: 75000
 })
 
 
