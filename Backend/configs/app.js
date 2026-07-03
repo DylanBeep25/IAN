@@ -15,6 +15,7 @@ import synonymsRoutes from '../src/synonyms/synonyms.routes.js'
 const allowedOrigins = [
     'http://localhost:5174',
     'http://localhost:5173',
+    'https://ian-swart-kappa.vercel.app'
 ]
 
 const configs = (app)=>{
@@ -44,7 +45,7 @@ export const initServer = () =>{
 
         const io = new Server(server, {
             cors:{
-                origin: 'http://localhost:5173',
+                origin: 'https://ian-swart-kappa.vercel.app',
                 credentials: true
             }
         })
