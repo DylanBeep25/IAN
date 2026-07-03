@@ -1,7 +1,7 @@
 //página del glosario
 import React, { useState, useEffect } from 'react';
 import { Book, Shuffle, Loader2 } from 'lucide-react';
-import { getAllDashboards, getAllSynonyms } from '../Services/api';
+import { getAllDashboards, getAllSynonyms } from '../Services/api.js';
 
 export default function Glossary() {
   const [kpis, setKpis] = useState([]);
