@@ -17,12 +17,16 @@
     "url": "git+https://github.com/DylanBeep25/IAN.git"
   },
   "license": "MIT",
+  "engines": {
+    "node": "20.x"
+  },
   "author": "DJ (Dylan Julian)",
   "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "start": "node index.js"
   },
   "dependencies": {
     "cors": "^2.8.6",
