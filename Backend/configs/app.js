@@ -47,7 +47,8 @@ export const initServer = () =>{
 
         const io = new Server(server, {
             cors:{
-                origin: 'http://localhost:5174',
+                //origin: 'http://localhost:5174',
+                origin: 'https://ian-swart-kappa.vercel.app',
                 credentials: true
             }
         })
