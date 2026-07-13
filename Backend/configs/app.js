@@ -11,6 +11,7 @@ import { limiter } from "../middlewares/rate.limit.js";
 
 import dashboardRoutes from '../src/dashboards/dashboard.routes.js'
 import synonymsRoutes from '../src/synonyms/synonyms.routes.js'
+import rawdataRoutes from '../src/raw_data/rawdata.routes.js'
 
 const allowedOrigins = [
     'http://localhost:5174',
@@ -33,6 +34,7 @@ const configs = (app)=>{
 const routes = (app) =>{
     app.use(dashboardRoutes)
     app.use(synonymsRoutes)
+    app.use(rawdataRoutes)
 }
 
 export const initServer = () =>{
@@ -45,7 +47,7 @@ export const initServer = () =>{
 
         const io = new Server(server, {
             cors:{
-                origin: 'https://ian-swart-kappa.vercel.app',
+                origin: 'http://localhost:5174',
                 credentials: true
             }
         })

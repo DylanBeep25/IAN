@@ -24,6 +24,8 @@ function mapearFilasATableros(todasLasFilas) {
         if (limpio === 'keywords') return 'keywords';
         if (limpio === 'kpis') return 'kpis';
         if (limpio === 'resumen ia' || limpio === 'resumenia') return 'resumenIA';
+        if (limpio === 'destino' || limpio === 'destino') return 'destino'
+        if (limpio === 'actualizacion' || limpio === 'actualizacion') return 'actualizacion'
         return limpio;
     });
     

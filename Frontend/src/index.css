@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+@theme {
+  /* Al poner --color-, Tailwind crea automáticamente las clases de texto, fondo, bordes, etc. */
+  --color-admosa-dark: #0A1F33;
+  --color-admosa-blue: #009EE3;
+  --color-admosa-purple: #6A2B86;
+  --color-admosa-pink: #E2007E;
+  --color-admosa-gray: #F4F7F9;
+}

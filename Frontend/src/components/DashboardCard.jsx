@@ -1,82 +1,84 @@
-//Tarjeta de información
 import React from 'react';
-import { Eye, ExternalLink, BarChart3 } from 'lucide-react'; // Añadimos BarChart3 para un toque analítico
+import { Eye, ExternalLink, BarChart3 } from 'lucide-react';
 
 export default function DashboardCard({ tablero, onAbrirDetalles }) {
   return (
-    // Contenedor principal con overflow-hidden para la línea de color superior
-    <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group overflow-hidden border border-[#0A1F33]/5">
+    // "w-full" asegura que ocupe el 100% del espacio que le asigne la columna del grid
+    // 🛠️ CORREGIDO: "border border-admosa-dark/5" (Quitamos la doble 'b')
+    <div className="w-full bg-white rounded-xl shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between group overflow-hidden border border-admosa-dark/5 min-h-47.5">
       
-      {/* Línea superior con el degradado corporativo ADMOSA */}
-      <div className="h-1.5 w-full bg-linear-to-r from-[#009EE3] via-[#6A2B86] to-[#E2007E]"></div>
+      {/* Línea superior ADMOSA */}
+      <div className="h-1 w-full bg-linear-to-r from-admosa-blue via-admosa-purple to-admosa-pink"></div>
       
-      <div className="p-5 flex-1 flex flex-col">
-        {/* Cabecera de la tarjeta */}
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-[#F4F7F9] rounded-lg text-[#009EE3]">
-              <BarChart3 className="w-4 h-4" />
+      {/* Reducimos el padding a p-3.5 para que respire bien en columnas angostas */}
+      <div className="p-3.5 flex-1 flex flex-col justify-between">
+        
+        <div>
+          {/* Cabecera optimizada en espacio */}
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-1">
+              <div className="p-1 bg-admosa-gray rounded text-admosa-blue">
+                <BarChart3 className="w-3 h-3" />
+              </div>
+              <span className="px-1 py-0.5 text-[8px] font-bold rounded bg-admosa-gray text-admosa-dark/60 border border-admosa-dark/10 truncate max-w-45">
+                Actualización: {tablero.actualizacion}
+              </span>
             </div>
-            <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-[#F4F7F9] text-[#0A1F33]/60 border border-[#0A1F33]/10">
-              {tablero.codigo}
+            <span className="text-[8px] font-bold uppercase tracking-wider text-admosa-blue bg-admosa-blue/10 px-1.5 py-0.5 rounded-full truncate max-w-16.25">
+              {tablero.pais}
             </span>
           </div>
-          {/* Badge del país */}
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#009EE3] bg-[#009EE3]/10 px-2.5 py-1 rounded-full">
-            {tablero.pais}
-          </span>
+          
+          {/* Título: Usa "truncate" para que si es muy largo no salte de línea y arruine el alto de la fila */}
+          <h3 className="font-extrabold text-admosa-dark text-sm leading-tight group-hover:text-admosa-blue transition-colors mb-1 truncate" title={tablero.nombre}>
+            {tablero.nombre}
+          </h3>
+          
+          {/* Descripción: Limitada estrictamente a 2 líneas */}
+          <p className="text-[11px] text-admosa-dark/60 leading-snug line-clamp-2 mb-2">
+            {tablero.descripcion}
+          </p>
         </div>
         
-        {/* Título y Descripción */}
-        <h3 className="font-extrabold text-[#0A1F33] text-lg leading-tight group-hover:text-[#009EE3] transition-colors mb-2">
-          {tablero.nombre}
-        </h3>
-        
-        <p className="text-xs text-[#0A1F33]/60 leading-relaxed line-clamp-3 mb-4 flex-1">
-          {tablero.descripcion}
-        </p>
-        
-        {/* Etiquetas con un diseño más sutil y un separador superior */}
+        {/* Etiquetas */}
         {tablero.tags && tablero.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-4 border-t border-[#0A1F33]/5 mt-auto">
-            {tablero.tags.slice(0, 3).map((tag, i) => (
-              <span key={i} className="text-[9px] font-semibold text-[#0A1F33]/50 uppercase tracking-widest bg-[#F4F7F9] px-2 py-1 rounded-md border border-[#0A1F33]/5">
+          // 🛠️ CORREGIDO: "border-t border-admosa-dark/5" (Faltaba la palabra border-)
+          <div className="flex flex-wrap gap-1 pt-2 border-t border-admosa-dark/5 mt-2">
+            {tablero.tags.slice(0, 2).map((tag, i) => (
+              // 🛠️ CORREGIDO: "border border-admosa-dark/10" (Cambiamos text- por border-)
+              <span key={i} className="text-[8px] font-semibold text-admosa-dark/50 uppercase bg-admosa-gray px-1.5 py-0.5 rounded border border-admosa-dark/10 truncate max-w-13.75">
                 {tag}
               </span>
             ))}
-            {tablero.tags.length > 3 && (
-              <span className="text-[9px] font-bold text-[#0A1F33]/40 px-1 py-1">
-                +{tablero.tags.length - 3}
+            {tablero.tags.length > 2 && (
+              <span className="text-[8px] font-bold text-admosa-dark/40 align-middle pt-0.5">
+                +{tablero.tags.length - 2}
               </span>
             )}
           </div>
         )}
       </div>
 
-      {/* Botonera con contraste y mejor jerarquía visual */}
-      <div className="flex items-center gap-3 p-4 bg-[#F4F7F9]/50 border-t border-[#0A1F33]/5">
-        
-        {/* Botón secundario (Blanco con borde) */}
+      {/* Botonera */}
+      <div className="flex items-center gap-1.5 px-3 py-2 bg-admosa-gray/50 border-t border-admosa-dark/5">
         <button 
           onClick={() => onAbrirDetalles(tablero)}
-          className="flex-1 text-[11px] font-bold text-[#0A1F33]/70 hover:text-[#0A1F33] bg-white hover:bg-slate-50 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 border border-[#0A1F33]/10 shadow-sm"
+          className="flex-1 text-[10px] font-bold text-admosa-dark/70 hover:text-admosa-dark bg-white hover:bg-slate-50 py-1.5 rounded-md transition-all flex items-center justify-center gap-1 border border-admosa-dark/10"
         >
-          <Eye className="w-3.5 h-3.5" />
-          <span>Ficha Técnica</span>
+          <Eye className="w-3 h-3 text-admosa-dark/50" />
+          <span>Ficha</span>
         </button>
         
-        {/* Botón primario (Sólido Morado para el Action Call) */}
         <a 
           href={tablero.url} 
           target="_blank" 
           rel="noreferrer"
-          className="flex-1 text-[11px] font-bold text-white bg-[#4a5eae] hover:bg-[#57236D] py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1.5"
+          className="flex-1 text-[10px] font-bold text-white bg-[#4a5eae] hover:bg-[#57236D] py-1.5 rounded-md transition-all flex items-center justify-center gap-1"
         >
-          <span>Abrir Reporte</span>
-          <ExternalLink className="w-3.5 h-3.5" />
+          <span>Reporte</span>
+          <ExternalLink className="w-3 h-3" />
         </a>
       </div>
-      
     </div>
   );
 }
