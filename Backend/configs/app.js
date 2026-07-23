@@ -19,7 +19,7 @@ import { defaultAdmin } from "../src/User/user.controller.js";
 const allowedOrigins = [
     'http://localhost:5174',
     'http://localhost:5173',
-    'https://ian-swart-kappa.vercel.app'
+    'https://ian-git-main-dylans-projects-0757b7ba.vercel.app'
 ]
 
 const configs = (app)=>{
@@ -29,7 +29,9 @@ const configs = (app)=>{
         origin: allowedOrigins,
         credentials: true
     }))
-    app.use(helmet())
+    app.use(helmet({
+        crossOriginResourcePolicy: {policy: "cross-origin"}
+    }))
     app.use(morgan('dev'))
     app.use(limiter)
 }
@@ -52,7 +54,7 @@ export const initServer = () =>{
 
         const io = new Server(server, {
             cors:{
-                origin: 'http://localhost:5174',
+                origin: allowedOrigins,
                 //origin: 'https://ian-swart-kappa.vercel.app',
                 credentials: true
             }
