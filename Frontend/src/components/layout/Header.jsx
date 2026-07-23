@@ -1,5 +1,8 @@
 import React from 'react';
 import { Construction, Menu, X } from 'lucide-react';
+import ADMOSA_LOGO_blanco from'../../assets/ADMOSA_LOGO_blanco.png'
+import GI from '../../assets/GI_dos.png'
+
 
 export default function Header({ onToggleSidebar, isSidebarOpen }) {
   return (
@@ -18,17 +21,19 @@ export default function Header({ onToggleSidebar, isSidebarOpen }) {
         {/* Contenedor de Logos - Le añadimos un pl-9 en móvil para que el botón no tape el logo */}
         <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left w-full md:w-auto pl-9 md:pl-0">
           <div className="shrink-0">
-            <img 
-              src="https://lh3.googleusercontent.com/u/0/d/1wd_FPwhJrZ80VYLrKDv1emWydYqXtwXw" 
-              alt="Logo Empresa" 
-              className="w-36 sm:w-30 h-auto object-contain mx-auto" 
-            />
+            <a href="/">
+              <img 
+                src={ADMOSA_LOGO_blanco}
+                alt="Logo Empresa" 
+                className="w-36 sm:w-30 h-auto object-contain mx-auto" 
+              />
+            </a>
           </div>
           
           <div className="flex items-center space-x-3 border-t sm:border-t-0 sm:border-l border-white/10 pt-3 sm:pt-0 sm:pl-4">
             <div className="shrink-0">
               <img 
-                src="https://lh3.googleusercontent.com/u/0/d/1GI5_ns0hhqfKxSqRQwGhici4-AZyjX5J" 
+                src={GI}
                 alt="Logo IAN" 
                 className="w-8 sm:w-15 h-auto object-contain" 
               />
@@ -63,7 +68,7 @@ export default function Header({ onToggleSidebar, isSidebarOpen }) {
           Esta plataforma se encuentra en desarrollo activo.
         </span>
         <span className="bg-admosa-dark/30 px-1.5 py-0.5 rounded-md text-[9px] uppercase tracking-wider border border-white/20 whitespace-nowrap">
-          Versión Beta 3.1
+          Versión Beta 4.0
         </span>
       </div>
     </header>

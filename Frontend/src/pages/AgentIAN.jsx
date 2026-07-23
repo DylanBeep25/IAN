@@ -72,158 +72,161 @@ export default function AgentIAN() {
   };
 
   return (
-    // 💡 CAMBIO CLAVE AQUÍ: Usamos h-[calc(...)] para forzar la altura exacta en pantalla.
-    // También le pusimos rounded-2xl y shadow para que parezca una ventana de app nativa.
-    <div className="flex flex-col lg:flex-row overflow-hidden w-full h-[calc(100vh-110px)] md:h-[calc(100vh-130px)] bg-white rounded-2xl shadow-sm border border-admosa-dark/10">
+    <div className="max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6 text-admosa-dark">
       
-      {/* PANEL PRINCIPAL DE CHAT */}
-      <div className="flex-1 flex flex-col overflow-hidden h-full order-1">
+      {/* CONTENEDOR PRINCIPAL DEL CHAT Y SIDEBAR */}
+      <div className="flex flex-col lg:flex-row overflow-hidden w-full h-[calc(100vh-160px)] bg-white rounded-2xl shadow-sm border border-admosa-dark/10">
         
-        {/* Header del Chat */}
-        <div className="p-4 border-b border-admosa-dark/10 flex items-center justify-between bg-admosa-gray/50 shrink-0">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-admosa-blue/10 rounded-full flex items-center justify-center text-admosa-blue shadow-sm">
-              <BotMessageSquare className="w-6 h-6 animate-pulse" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-admosa-dark">IAN-Agent</h3>
-              <p className="text-[11px] text-admosa-purple font-semibold flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00C988] animate-pulse"></span>
-                Asesor de Directorios Activo
-              </p>
-            </div>
-          </div>
-          <button 
-            onClick={handleClearChat} 
-            className="text-xs text-admosa-dark/50 hover:text-admosa-dark flex items-center space-x-1 p-1.5 rounded-md hover:bg-admosa-gray transition-all"
-          >
-            <Trash2 className="w-4 h-4" />
-            <span className="hidden sm:inline">Limpiar Historial</span>
-          </button>
-        </div>
-
-        {/* Historial de Mensajes */}
-        <div id="chat-messages" className="flex-1 p-3 sm:p-4 overflow-y-auto space-y-4 custom-scrollbar bg-admosa-gray/20">
-          {messages.map((msg, index) => (
-            <div 
-              key={index} 
-              className={`flex items-start space-x-2 sm:space-x-3 max-w-[92%] sm:max-w-[85%] ${
-                msg.role === 'user' ? 'ml-auto flex-row-reverse space-x-reverse' : ''
-              }`}
-            >
-              {/* Icono */}
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border ${
-                msg.role === 'user' 
-                  ? 'bg-admosa-blue/10 text-admosa-blue border-admosa-blue/20' 
-                  : 'bg-admosa-purple/10 text-admosa-purple border-admosa-purple/20'
-              }`}>
-                {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+        {/* 🔥 AQUÍ ESTÁ LA MAGIA: Este div agrupa todo el chat en una sola columna 🔥 */}
+        <div className="flex-1 flex flex-col overflow-hidden h-full order-1">
+          
+          {/* Header del Chat */}
+          <div className="p-4 border-b border-admosa-dark/10 flex items-center justify-between bg-admosa-gray/50 shrink-0">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-admosa-blue/10 rounded-full flex items-center justify-center text-admosa-blue shadow-sm">
+                <BotMessageSquare className="w-6 h-6 animate-pulse" />
               </div>
-
-              {/* Burbuja */}
-              <div className={`p-3 sm:p-4 rounded-2xl shadow-xs text-xs sm:text-sm leading-relaxed flex flex-col space-y-2 w-full ${
-                msg.role === 'user' 
-                  ? 'bg-admosa-blue text-white rounded-tr-none' 
-                  : 'bg-white text-admosa-dark border border-admosa-dark/10 rounded-tl-none'
-              }`}>
-                <div dangerouslySetInnerHTML={{ __html: msg.text }} className="wrap-break-word" />
-
-                {/* Grid dinámico de tableros recomendados */}
-                {msg.recommendedTableros && msg.recommendedTableros.length > 0 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2 w-full">
-                    {msg.recommendedTableros.map((tab) => (
-                      <div key={tab.codigo} className="bg-admosa-gray/30 border border-admosa-dark/5 p-3 rounded-xl shadow-xs flex flex-col justify-between space-y-2.5 text-left w-full overflow-hidden">
-                        <div>
-                          <div className="flex items-center justify-between text-[9px]">
-                            <span className="font-extrabold text-admosa-dark/40">{tab.codigo}</span>
-                            <span className="font-bold px-1.5 py-0.5 rounded-full bg-white text-admosa-blue border border-admosa-blue/10 uppercase tracking-wider">{tab.pais}</span>
-                          </div>
-                          <h4 className="font-bold text-admosa-dark text-xs mt-1 truncate" title={tab.nombre}>{tab.nombre}</h4>
-                          <p className="text-[11px] text-admosa-dark/60 mt-0.5 line-clamp-2 leading-tight">{tab.descripcion}</p>
-                        </div>
-                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-admosa-dark/5">
-                          <button className="text-[10px] text-admosa-purple font-bold hover:underline flex items-center gap-0.5">
-                            <Info className="w-3 h-3" />
-                            <span>Detalles</span>
-                          </button>
-                          <a 
-                            href={tab.url} 
-                            target="_blank" 
-                            rel="noreferrer" 
-                            className="text-[10px] bg-admosa-blue hover:bg-admosa-blue/90 text-white font-bold px-2 py-1 rounded-md flex items-center gap-1 transition-all"
-                          >
-                            <span>Acceder</span>
-                            <ExternalLink className="w-2.5 h-2.5" />
-                          </a>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+              <div>
+                <h3 className="text-sm font-bold text-admosa-dark">IAN-Agent</h3>
+                <p className="text-[11px] text-admosa-purple font-semibold flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00C988] animate-pulse"></span>
+                  Asesor de Directorios Activo
+                </p>
               </div>
             </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Indicador de escritura */}
-        {isTyping && (
-          <div className="px-4 py-2 flex items-center space-x-2 text-xs text-admosa-dark/40 shrink-0 bg-white">
-            <span className="w-1.5 h-1.5 rounded-full bg-admosa-blue animate-bounce"></span>
-            <span className="w-1.5 h-1.5 rounded-full bg-admosa-blue animate-bounce" style={{ animationDelay: '0.2s' }}></span>
-            <span className="w-1.5 h-1.5 rounded-full bg-admosa-blue animate-bounce" style={{ animationDelay: '0.4s' }}></span>
-            <span className="font-medium">IAN está analizando tu solicitud...</span>
-          </div>
-        )}
-
-        {/* Input Form */}
-        <div className="p-3 border-t border-admosa-dark/10 bg-white shrink-0 rounded-bl-2xl">
-          <form onSubmit={handleSubmit} className="flex gap-2 max-w-7xl mx-auto w-full">
-            <input 
-              type="text" 
-              id="chat-input" 
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Escribe tu consulta..." 
-              className="flex-1 px-3 sm:px-4 py-2.5 text-xs sm:text-sm bg-admosa-gray/50 border border-admosa-dark/10 rounded-xl focus:ring-2 focus:ring-admosa-blue focus:outline-none transition-all text-admosa-dark placeholder-admosa-dark/40"
-              disabled={isTyping}
-            />
             <button 
-              type="submit" 
-              disabled={isTyping || !query.trim()}
-              className="bg-admosa-blue hover:bg-admosa-blue/90 disabled:opacity-40 text-white px-4 sm:px-5 py-2.5 rounded-xl transition-all shadow-xs flex items-center justify-center shrink-0"
+              onClick={handleClearChat} 
+              className="text-xs text-admosa-dark/50 hover:text-admosa-dark flex items-center space-x-1 p-1.5 rounded-md hover:bg-admosa-gray transition-all"
             >
-              <Send className="w-4 sm:w-5 h-4 sm:h-5" />
+              <Trash2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Limpiar Historial</span>
             </button>
-          </form>
-        </div>
-      </div>
+          </div>
 
-      {/* PANEL LATERAL DE ATAJOS */}
-      {/* 💡 CAMBIO CLAVE AQUÍ: En móvil le ponemos max-h-[35%] para que no se trague toda la pantalla y permita ver el chat arriba */}
-      <div className="w-full lg:w-80 p-4 bg-admosa-gray flex flex-col space-y-4 overflow-y-auto shrink-0 border-t lg:border-t-0 lg:border-l border-admosa-dark/10 order-2 max-h-[35%] lg:max-h-none">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-admosa-dark/40">Atajos del Asesor</h4>
-        
-        <div className="bg-white p-3 rounded-xl border border-admosa-dark/5 shadow-xs space-y-2 shrink-0">
-          <span className="text-xs font-bold text-admosa-dark block">Consultas Rápidas</span>
-          <div className="space-y-1">
-            <button onClick={() => handleSetChatQuery('¿Cuál tablero muestra los precios de motocicletas en la región?')} className="w-full text-left text-xs text-admosa-dark/70 hover:text-admosa-blue hover:underline p-1 block truncate">¿Precios de motocicletas?</button>
-            <button onClick={() => handleSetChatQuery('¿Dónde puedo ver licitaciones vigentes en Guatemala?')} className="w-full text-left text-xs text-admosa-dark/70 hover:text-admosa-blue hover:underline p-1 block truncate">¿Licitaciones vigentes?</button>
-            <button onClick={() => handleSetChatQuery('¿Qué tablero analiza el mercado de autos nuevos en Guatemala?')} className="w-full text-left text-xs text-admosa-dark/70 hover:text-admosa-blue hover:underline p-1 block truncate">¿Mercado de autos de agencia?</button>
-            <button onClick={() => handleSetChatQuery('Necesito un tablero para monitorear precios de fuerza motriz')} className="w-full text-left text-xs text-admosa-dark/70 hover:text-admosa-blue hover:underline p-1 block truncate">¿Precios fuerza motriz?</button>
+          {/* Historial de Mensajes */}
+          <div id="chat-messages" className="flex-1 p-3 sm:p-4 overflow-y-auto space-y-4 custom-scrollbar bg-admosa-gray/20">
+            {messages.map((msg, index) => (
+              <div 
+                key={index} 
+                className={`flex items-start space-x-2 sm:space-x-3 max-w-[92%] sm:max-w-[85%] ${
+                  msg.role === 'user' ? 'ml-auto flex-row-reverse space-x-reverse' : ''
+                }`}
+              >
+                {/* Icono */}
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border ${
+                  msg.role === 'user' 
+                    ? 'bg-admosa-blue/10 text-admosa-blue border-admosa-blue/20' 
+                    : 'bg-admosa-purple/10 text-admosa-purple border-admosa-purple/20'
+                }`}>
+                  {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                </div>
+
+                {/* Burbuja */}
+                <div className={`p-3 sm:p-4 rounded-2xl shadow-xs text-xs sm:text-sm leading-relaxed flex flex-col space-y-2 w-full ${
+                  msg.role === 'user' 
+                    ? 'bg-admosa-blue text-white rounded-tr-none' 
+                    : 'bg-white text-admosa-dark border border-admosa-dark/10 rounded-tl-none'
+                }`}>
+                  <div dangerouslySetInnerHTML={{ __html: msg.text }} className="wrap-break-word" />
+
+                  {/* Grid dinámico de tableros recomendados */}
+                  {msg.recommendedTableros && msg.recommendedTableros.length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2 w-full">
+                      {msg.recommendedTableros.map((tab) => (
+                        <div key={tab.codigo} className="bg-admosa-gray/30 border border-admosa-dark/5 p-3 rounded-xl shadow-xs flex flex-col justify-between space-y-2.5 text-left w-full overflow-hidden">
+                          <div>
+                            <div className="flex items-center justify-between text-[9px]">
+                              <span className="font-extrabold text-admosa-dark/40">{tab.codigo}</span>
+                              <span className="font-bold px-1.5 py-0.5 rounded-full bg-white text-admosa-blue border border-admosa-blue/10 uppercase tracking-wider">{tab.pais}</span>
+                            </div>
+                            <h4 className="font-bold text-admosa-dark text-xs mt-1 truncate" title={tab.nombre}>{tab.nombre}</h4>
+                            <p className="text-[11px] text-admosa-dark/60 mt-0.5 line-clamp-2 leading-tight">{tab.descripcion}</p>
+                          </div>
+                          <div className="flex items-center justify-between gap-2 pt-2 border-t border-admosa-dark/5">
+                            <button className="text-[10px] text-admosa-purple font-bold hover:underline flex items-center gap-0.5">
+                              <Info className="w-3 h-3" />
+                              <span>Detalles</span>
+                            </button>
+                            <a 
+                              href={tab.url} 
+                              target="_blank" 
+                              rel="noreferrer" 
+                              className="text-[10px] bg-admosa-blue hover:bg-admosa-blue/90 text-white font-bold px-2 py-1 rounded-md flex items-center gap-1 transition-all"
+                            >
+                              <span>Acceder</span>
+                              <ExternalLink className="w-2.5 h-2.5" />
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Indicador de escritura */}
+          {isTyping && (
+            <div className="px-4 py-2 flex items-center space-x-2 text-xs text-admosa-dark/40 shrink-0 bg-white border-t border-admosa-dark/5">
+              <span className="w-1.5 h-1.5 rounded-full bg-admosa-blue animate-bounce"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-admosa-blue animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-admosa-blue animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+              <span className="font-medium">IAN está analizando tu solicitud...</span>
+            </div>
+          )}
+
+          {/* Input Form */}
+          <div className="p-3 border-t border-admosa-dark/10 bg-white shrink-0">
+            <form onSubmit={handleSubmit} className="flex gap-2 max-w-7xl mx-auto w-full">
+              <input 
+                type="text" 
+                id="chat-input" 
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Escribe tu consulta..." 
+                className="flex-1 px-3 sm:px-4 py-2.5 text-xs sm:text-sm bg-admosa-gray/50 border border-admosa-dark/10 rounded-xl focus:ring-2 focus:ring-admosa-blue focus:outline-none transition-all text-admosa-dark placeholder-admosa-dark/40"
+                disabled={isTyping}
+              />
+              <button 
+                type="submit" 
+                disabled={isTyping || !query.trim()}
+                className="bg-admosa-blue hover:bg-admosa-blue/90 disabled:opacity-40 text-white px-4 sm:px-5 py-2.5 rounded-xl transition-all shadow-xs flex items-center justify-center shrink-0"
+              >
+                <Send className="w-4 sm:w-5 h-4 sm:h-5" />
+              </button>
+            </form>
+          </div>
+
+        </div> {/* <-- FIN DEL DIV MAGICO QUE ENVUELVE EL CHAT */}
+
+        {/* PANEL LATERAL DE ATAJOS */}
+        <div className="w-full lg:w-80 p-4 bg-admosa-gray flex flex-col space-y-4 overflow-y-auto shrink-0 border-t lg:border-t-0 lg:border-l border-admosa-dark/10 order-2 max-h-[35%] lg:max-h-none">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-admosa-dark/40">Atajos del Asesor</h4>
+          
+          <div className="bg-white p-3 rounded-xl border border-admosa-dark/5 shadow-xs space-y-2 shrink-0">
+            <span className="text-xs font-bold text-admosa-dark block">Consultas Rápidas</span>
+            <div className="space-y-1">
+              <button onClick={() => handleSetChatQuery('¿Cuál tablero muestra los precios de motocicletas en la región?')} className="w-full text-left text-xs text-admosa-dark/70 hover:text-admosa-blue hover:underline p-1 block truncate transition-colors">¿Precios de motocicletas?</button>
+              <button onClick={() => handleSetChatQuery('¿Dónde puedo ver licitaciones vigentes en Guatemala?')} className="w-full text-left text-xs text-admosa-dark/70 hover:text-admosa-blue hover:underline p-1 block truncate transition-colors">¿Licitaciones vigentes?</button>
+              <button onClick={() => handleSetChatQuery('¿Qué tablero analiza el mercado de autos nuevos en Guatemala?')} className="w-full text-left text-xs text-admosa-dark/70 hover:text-admosa-blue hover:underline p-1 block truncate transition-colors">¿Mercado de autos de agencia?</button>
+              <button onClick={() => handleSetChatQuery('Necesito un tablero para monitorear precios de fuerza motriz')} className="w-full text-left text-xs text-admosa-dark/70 hover:text-admosa-blue hover:underline p-1 block truncate transition-colors">¿Precios fuerza motriz?</button>
+            </div>
+          </div>
+
+          <div className="bg-admosa-purple/5 p-3 rounded-xl border border-admosa-purple/10 space-y-2 shrink-0">
+            <span className="text-xs font-bold text-admosa-purple block">Comprensión de Sinónimos</span>
+            <p className="text-[11px] text-admosa-dark/70 leading-normal">El IAN-Agent traduce automáticamente tus términos a vocabulario técnico oficial:</p>
+            <div className="grid grid-cols-2 gap-1.5 pt-1">
+              <div className="bg-white p-1.5 rounded-lg text-[10px] border border-admosa-purple/10 text-admosa-dark/80 flex justify-between"><strong className="text-admosa-purple">Usado</strong> <span className="text-admosa-dark/30">➔</span> Rodado</div>
+              <div className="bg-white p-1.5 rounded-lg text-[10px] border border-admosa-purple/10 text-admosa-dark/80 flex justify-between"><strong className="text-admosa-purple">Nuevo</strong> <span className="text-admosa-dark/30">➔</span> Agencia</div>
+              <div className="bg-white p-1.5 rounded-lg text-[10px] border border-admosa-purple/10 text-admosa-dark/80 flex justify-between"><strong className="text-admosa-purple">Ventas</strong> <span className="text-admosa-dark/30">➔</span> Alzas</div>
+              <div className="bg-white p-1.5 rounded-lg text-[10px] border border-admosa-purple/10 text-admosa-dark/80 flex justify-between"><strong className="text-admosa-purple">Sport</strong> <span className="text-admosa-dark/30">➔</span> Urbana</div>
+            </div>
           </div>
         </div>
 
-        <div className="bg-admosa-purple/5 p-3 rounded-xl border border-admosa-purple/10 space-y-2 shrink-0">
-          <span className="text-xs font-bold text-admosa-purple block">Comprensión de Sinónimos</span>
-          <p className="text-[11px] text-admosa-dark/70 leading-normal">El IAN-Agent traduce automáticamente tus términos a vocabulario técnico oficial:</p>
-          <div className="grid grid-cols-2 gap-1.5 pt-1">
-            <div className="bg-white p-1.5 rounded-lg text-[10px] border border-admosa-purple/10 text-admosa-dark/80"><strong className="text-admosa-purple">Usado</strong> ➔ Rodado</div>
-            <div className="bg-white p-1.5 rounded-lg text-[10px] border border-admosa-purple/10 text-admosa-dark/80"><strong className="text-admosa-purple">Nuevo</strong> ➔ Agencia</div>
-            <div className="bg-white p-1.5 rounded-lg text-[10px] border border-admosa-purple/10 text-admosa-dark/80"><strong className="text-admosa-purple">Ventas</strong> ➔ Alzas</div>
-            <div className="bg-white p-1.5 rounded-lg text-[10px] border border-admosa-purple/10 text-admosa-dark/80"><strong className="text-admosa-purple">Sport</strong> ➔ Urbana</div>
-          </div>
-        </div>
       </div>
     </div>
   );

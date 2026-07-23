@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Search, LayoutGrid, Eye, ExternalLink, Loader2 } from 'lucide-react';
 import { getAllDashboards } from '../services/api.js';
-import ModalDetails from '../components/ModalDetails.jsx';
-import DashboardCard from '../components/DashboardCard.jsx';
+import ModalDetails from '../components/ui/ModalDetails.jsx';
+import DashboardCard from '../components/ui/DashboardCard.jsx';
 
 export default function Dashboards() {
   const [tableros, setTableros] = useState([]);
@@ -66,7 +66,6 @@ export default function Dashboards() {
 
       return coincideBuscador && coincidePestaña;
     })
-    // 📊 ORDENAMIENTO: Del más actualizado al más antiguo
     .sort((a, b) => {
       const fechaA = obtenerTimestamp(a.actualizacion);
       const fechaB = obtenerTimestamp(b.actualizacion);
@@ -106,7 +105,7 @@ export default function Dashboards() {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl w-full mx-auto space-y-6 text-admosa-dark">
+    <div className="max-w-7xl mx-auto w-full space-y-6 p-4 sm:p-6 text-admosa-dark">
       
       {/* Banner Principal - Degradado de Morado a Oscuro ADMOSA */}
       <div className="bg-linear-to-r from-admosa-purple to-admosa-dark text-white rounded-2xl p-6 shadow-sm relative overflow-hidden">

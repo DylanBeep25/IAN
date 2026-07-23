@@ -4,7 +4,6 @@ import { X, Link2, ExternalLink, CheckCircle2, AlertTriangle } from 'lucide-reac
 
 export default function ModalDetails({ isOpen, onClose, tablero }) {
   // Si no está abierto o no hay datos, no renderizamos nada
-  console.log("Datos del tablero recibidos en Modal:", tablero);
   if (!isOpen || !tablero) return null;
 
   // Función para cerrar si hacen clic en el fondo oscuro

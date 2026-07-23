@@ -1,18 +1,18 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext.jsx'
+import { MainPage } from './pages/MainPage.jsx'
 
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import MainPage from './pages/MainPage.jsx'
 
 function App() {
   return(
-    <Router>
-      <Routes>
-        <Route path="/*" element={<MainPage/>} />
-      </Routes>
-    </Router>
+    // 2. Envuelves tu aplicación con el AuthProvider
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/*" element={<MainPage/>} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   )
 }
 

@@ -12,6 +12,9 @@ import { limiter } from "../middlewares/rate.limit.js";
 import dashboardRoutes from '../src/dashboards/dashboard.routes.js'
 import synonymsRoutes from '../src/synonyms/synonyms.routes.js'
 import rawdataRoutes from '../src/raw_data/rawdata.routes.js'
+import userRoutes from '../src/User/user.routes.js'
+import authRoutes from '../src/auth/auth.routes.js'
+import { defaultAdmin } from "../src/User/user.controller.js";
 
 const allowedOrigins = [
     'http://localhost:5174',
@@ -35,6 +38,8 @@ const routes = (app) =>{
     app.use(dashboardRoutes)
     app.use(synonymsRoutes)
     app.use(rawdataRoutes)
+    app.use('/auth',authRoutes)
+    app.use('/user',userRoutes)
 }
 
 export const initServer = () =>{
@@ -47,8 +52,8 @@ export const initServer = () =>{
 
         const io = new Server(server, {
             cors:{
-                //origin: 'http://localhost:5174',
-                origin: 'https://ian-swart-kappa.vercel.app',
+                origin: 'http://localhost:5174',
+                //origin: 'https://ian-swart-kappa.vercel.app',
                 credentials: true
             }
         })
@@ -65,6 +70,8 @@ export const initServer = () =>{
 
         server.listen(process.env.PORT || 3200)
         console.log(`Server running on port: ${process.env.PORT || 3200}`)
+
+        defaultAdmin('Dylan', 'Julian', '1dylan', 'dilanchino10@gmail.com', '123123Aa!', 'FULL ADMIN')
     } catch (error) {
         console.error('Server init failed', error)
     }
