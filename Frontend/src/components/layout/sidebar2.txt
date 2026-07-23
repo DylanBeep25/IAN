@@ -1,0 +1,103 @@
+import React from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, BarChart2, MessageSquare, Database, BookOpen, Settings, LogOut, LayoutDashboard, Shield } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext.jsx';
+
+export default function Sidebar({ alNavegar }) {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
+
+    // Verificamos si estamos dentro de la zona de administración
+    const isEditingAdmin = location.pathname.startsWith('/admin');
+    
+    // Verificamos si el usuario tiene permisos
+    const isAdmin = user?.role === 'admin' || user?.role === 'full_admin' || user?.role === 'FULL_ADMIN';
+
+    const handleLogout = () => {
+        logout();
+        navigate('/home');
+        if (alNavegar) alNavegar();
+    };
+
+    // --- MENÚ DE ADMINISTRACIÓN ---
+    if (isEditingAdmin && isAdmin) {
+        return (
+            <div className="h-full flex flex-col bg-admosa-dark text-white shadow-xl">
+                <div className="p-6 border-b border-white/10">
+                    <h2 className="text-xl font-bold flex items-center gap-2">
+                        <Shield className="w-6 h-6 text-admosa-blue" />
+                        Panel Admin
+                    </h2>
+                </div>
+                
+                <nav className="flex-1 p-4 flex flex-col gap-2">
+                    <Link to="/admin/tableros" onClick={alNavegar} className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${location.pathname === '/admin/tableros' ? 'bg-white/10 text-white font-bold' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}>
+                        <LayoutDashboard className="w-5 h-5" />
+                        <span>Admin. de Tableros</span>
+                    </Link>
+                    <Link to="/admin/glosario" onClick={alNavegar} className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${location.pathname === '/admin/glosario' ? 'bg-white/10 text-white font-bold' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}>
+                        <BookOpen className="w-5 h-5" />
+                        <span>Admin. de Glosario</span>
+                    </Link>
+                    <Link to="/admin/rutas" onClick={alNavegar} className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${location.pathname === '/admin/rutas' ? 'bg-white/10 text-white font-bold' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}>
+                        <Database className="w-5 h-5" />
+                        <span>Admin. de Rutas</span>
+                    </Link>
+                </nav>
+
+                <div className="p-4 border-t border-white/10 space-y-2">
+                    {/* Botón para regresar al sitio normal */}
+                    <Link to="/home" onClick={alNavegar} className="flex items-center gap-3 p-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-colors">
+                        <Home className="w-5 h-5" />
+                        <span>Volver al sitio público</span>
+                    </Link>
+                    <button onClick={handleLogout} className="w-full flex items-center gap-3 p-3 rounded-xl text-red-400 hover:bg-red-400/10 transition-colors">
+                        <LogOut className="w-5 h-5" />
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // --- MENÚ PÚBLICO (El normal) ---
+    return (
+        <div className="h-full flex flex-col bg-white shadow-xl">
+            <nav className="flex-1 p-4 flex flex-col gap-1">
+                <Link to="/home" onClick={alNavegar} className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${location.pathname === '/home' ? 'bg-admosa-gray text-admosa-dark font-bold' : 'text-admosa-dark/70 hover:bg-admosa-gray/50 hover:text-admosa-dark'}`}>
+                    <Home className="w-5 h-5" />
+                    <span>Inicio</span>
+                </Link>
+                <Link to="/tableros" onClick={alNavegar} className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${location.pathname === '/tableros' ? 'bg-admosa-gray text-admosa-dark font-bold' : 'text-admosa-dark/70 hover:bg-admosa-gray/50 hover:text-admosa-dark'}`}>
+                    <BarChart2 className="w-5 h-5" />
+                    <span>Explorador de Tableros</span>
+                </Link>
+                <Link to="/agente" onClick={alNavegar} className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${location.pathname === '/agente' ? 'bg-admosa-gray text-admosa-dark font-bold' : 'text-admosa-dark/70 hover:bg-admosa-gray/50 hover:text-admosa-dark'}`}>
+                    <MessageSquare className="w-5 h-5" />
+                    <span>Agente IAN</span>
+                </Link>
+                <Link to="/rawdata" onClick={alNavegar} className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${location.pathname === '/rawdata' ? 'bg-admosa-gray text-admosa-dark font-bold' : 'text-admosa-dark/70 hover:bg-admosa-gray/50 hover:text-admosa-dark'}`}>
+                    <MessageSquare className="w-5 h-5" />
+                    <span>Carpetas</span>
+                </Link>
+            </nav>
+
+            <div className="p-4 border-t border-admosa-dark/5">
+                {isAdmin ? (
+                    // Si ya está logueado, le mostramos el botón para IR AL PANEL DE ADMIN
+                    <Link to="/admin/tableros" onClick={alNavegar} className="flex items-center gap-3 p-3 rounded-xl bg-admosa-dark text-white hover:bg-black transition-colors shadow-lg shadow-admosa-dark/20">
+                        <Settings className="w-5 h-5" />
+                        <span className="font-semibold">Ir a Administración</span>
+                    </Link>
+                ) : (
+                    // Si no está logueado, le mostramos el botón para INICIAR SESIÓN
+                    <Link to="/login" onClick={alNavegar} className="flex items-center gap-3 p-3 rounded-xl text-admosa-dark/70 hover:bg-admosa-gray/50 hover:text-admosa-dark transition-colors">
+                        <Settings className="w-5 h-5" />
+                        <span>Administración</span>
+                    </Link>
+                )}
+            </div>
+        </div>
+    );
+}

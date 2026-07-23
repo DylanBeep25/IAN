@@ -1,19 +1,22 @@
 import axios from "axios";
 
+const render_url = import.meta.env.VITE_API_URL || "https://ian-4xua.onrender.com"
+
 const apiDashboard = axios.create({
-    //baseURL: 'https://ian-4xua.onrender.com',
-    baseURL: 'http://localhost:3200',
+    baseURL: render_url,
+    //baseURL: 'http://localhost:3200',
     timeout: 75000
 })
 
 const apiAuth = axios.create({
-    //baseURL: 'https://ian-4xua.onrender.com',
-    baseURL: 'http://localhost:3200/auth',
+    baseURL: `${render_url}/auth`,
+    //baseURL: 'http://localhost:3200/auth',
     timeout: 75000
 })
 
 const apiUser = axios.create({
-    baseURL: 'http://localhost:3200/user',
+    baseURL: `${render_url}/user`,
+    //baseURL: 'http://localhost:3200/user',
     timeout: 75000
 })
 
