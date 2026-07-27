@@ -72,7 +72,7 @@ const TreeNode = ({ node, onChange, onDelete, level = 0 }) => {
                         value={node.name}
                         onChange={(e) => handleChange('name', e.target.value)}
                         placeholder={node.type === 'folder' ? 'Nombre de Carpeta...' : 'Nombre del Archivo...'}
-                        className="flex-1 min-w-[200px] px-3 py-1.5 text-sm font-bold text-admosa-dark bg-gray-50 border border-admosa-dark/10 rounded-lg focus:outline-none focus:border-admosa-dark focus:bg-white"
+                        className="flex-1 min-w-50 px-3 py-1.5 text-sm font-bold text-admosa-dark bg-gray-50 border border-admosa-dark/10 rounded-lg focus:outline-none focus:border-admosa-dark focus:bg-white"
                     />
 
                     {/* Eliminar Nodo */}
@@ -87,7 +87,7 @@ const TreeNode = ({ node, onChange, onDelete, level = 0 }) => {
                 </div>
 
                 {/* FILA SECUNDARIA: Detalles extra (URL, Extensión, Tablero) */}
-                <div className="flex flex-wrap items-center gap-3 pl-1 sm:pl-[4.5rem]">
+                <div className="flex flex-wrap items-center gap-3 pl-1 sm:pl-18">
                     
                     {/* Extensión (Solo archivos) */}
                     {node.type === 'file' && (
@@ -106,7 +106,7 @@ const TreeNode = ({ node, onChange, onDelete, level = 0 }) => {
                     )}
 
                     {/* URL (Para archivos y para carpetas con acceso directo) */}
-                    <div className="flex items-center gap-2 flex-1 min-w-[200px] bg-gray-50 border border-admosa-dark/10 rounded-lg px-2">
+                    <div className="flex items-center gap-2 flex-1 min-w-50 bg-gray-50 border border-admosa-dark/10 rounded-lg px-2">
                         <Link2 className="w-3 h-3 text-admosa-dark/40" />
                         <input 
                             type="text"
@@ -129,7 +129,7 @@ const TreeNode = ({ node, onChange, onDelete, level = 0 }) => {
 
                 {/* CONTROLES DE CARPETA: Botones para agregar hijos */}
                 {node.type === 'folder' && (
-                    <div className="flex items-center gap-2 pl-[4.5rem] mt-1">
+                    <div className="flex items-center gap-2 pl-18 mt-1">
                         <button 
                             type="button"
                             onClick={() => handleAddChild('folder')}
@@ -173,9 +173,10 @@ const TreeNode = ({ node, onChange, onDelete, level = 0 }) => {
 export const RawDataForm = ({ rawData, onSuccess }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     
-    // Estado principal para el árbol visual (Ya no es texto)
+    // Estado principal para el árbol visual
     const [contenidoVisual, setContenidoVisual] = useState(rawData?.contenido || []);
 
+    // 💡 1. Agregamos resumenIA al useForm
     const { formData, handleValueChange, handleValidationOnBlur, isFormValid } = useForm({
         nombreCarpeta: { 
             value: rawData?.nombreCarpeta || '', 
@@ -184,6 +185,11 @@ export const RawDataForm = ({ rawData, onSuccess }) => {
         },
         descripcion: { 
             value: rawData?.descripcion || '', 
+            isValid: true, 
+            showError: false 
+        },
+        resumenIA: { 
+            value: rawData?.resumenIA || '', 
             isValid: true, 
             showError: false 
         }
@@ -207,7 +213,6 @@ export const RawDataForm = ({ rawData, onSuccess }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // Validación básica visual
         if (contenidoVisual.length === 0) {
             toast.error("Debes agregar al menos una carpeta principal en la estructura.");
             return;
@@ -215,10 +220,11 @@ export const RawDataForm = ({ rawData, onSuccess }) => {
 
         setIsSubmitting(true);
 
+        // 💡 2. Agregamos resumenIA al payload que se va al backend
         const payload = {
             nombreCarpeta: formData.nombreCarpeta.value,
             descripcion: formData.descripcion.value,
-            // Enviamos el objeto JSON perfecto construido por nuestro árbol visual
+            resumenIA: formData.resumenIA.value,
             contenido: contenidoVisual 
         };
 
@@ -263,6 +269,17 @@ export const RawDataForm = ({ rawData, onSuccess }) => {
                     type="text"
                     textarea={true}
                 />
+
+                {/* 💡 3. El nuevo Input para el Resumen IA */}
+                <Input
+                    field="resumenIA"
+                    label="Resumen para la IA (Palabras clave o descripción para que el Agente lo encuentre)"
+                    value={formData.resumenIA.value}
+                    onChangeHandler={handleValueChange}
+                    onBlurHandler={handleValidationOnBlur}
+                    type="text"
+                    textarea={true}
+                />
             </div>
 
             {/* ZONA DEL CONSTRUCTOR VISUAL */}
@@ -280,7 +297,7 @@ export const RawDataForm = ({ rawData, onSuccess }) => {
                     </button>
                 </div>
 
-                <div className="bg-gray-50 p-4 rounded-xl border border-admosa-dark/10 min-h-[200px] overflow-y-auto max-h-[500px]">
+                <div className="bg-gray-50 p-4 rounded-xl border border-admosa-dark/10 min-h-50 overflow-y-auto max-h-125">
                     {contenidoVisual.length === 0 ? (
                         <div className="h-full flex flex-col items-center justify-center text-admosa-dark/40 py-10">
                             <Folder className="w-10 h-10 mb-2 opacity-20" />

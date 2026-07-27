@@ -4,6 +4,7 @@ import { formatMarkdownText } from '../../utils/helpers.js';
 import { consultarGeminiEnServidor } from '../../utils/geminiClient.js';
 import Dashboard from './dashboard.model.js';
 import Synonyms from '../synonyms/synonyms.model.js'
+import RawData from '../raw_data/rawdata.model.js';
 
 // ==========================================
 // 1. OBTENER TODOS (Listar)
@@ -139,41 +140,60 @@ export const deleteDashboard = async (req, res) => {
 };
 
 // ==========================================
-// 6. ENDPOINT DE RECOMENDACIÓN CON IA (Mantenemos el tuyo)
+// 6. ENDPOINT DE RECOMENDACIÓN CON IA
 // ==========================================
-export const dashboardRecomendation = async (req, res) => {
+export const ianAgent = async (req, res) => {
     try {
-        const { prompt } = req.body; 
-        if (!prompt) return res.status(400).json({ message: "El prompt es requerido" });
+        const { prompt } = req.body;
+        if (!prompt) {
+            return res.status(400).json({ message: "El prompt es requerido" });
+        }
 
-        const [tablerosProcesados, sinonimosProcesados] = await Promise.all([
+        // 1. Obtener todas las bases de conocimiento en paralelo (Rápido y eficiente)
+        const [dbTableros, dbSynonyms, dbRawData] = await Promise.all([
             Dashboard.find().lean(),
-            Synonyms.find().lean()
-        ])
+            Synonyms.find().lean(),
+            RawData.find().select('nombreCarpeta descripcion resumenIA').lean()
+        ]);
 
-        const tarjetasRecomendadas = getLocalRecommendations(prompt, tablerosProcesados, sinonimosProcesados);
+        // 2. Ejecutar motor de recomendaciones local
+        const recomendacionesLocales = getLocalRecommendations(
+            prompt,
+            dbTableros,
+            dbSynonyms,
+            dbRawData
+        );
 
         let respuestaIA = "";
 
+        // 3. Consultar a Gemini con fallback en caso de error
         try {
-            respuestaIA = await consultarGeminiEnServidor(prompt, tablerosProcesados, sinonimosProcesados);
+            respuestaIA = await consultarGeminiEnServidor(
+                prompt,
+                dbTableros,
+                dbSynonyms,
+                dbRawData
+            );
         } catch (geminiError) {
-            console.error("Fallback algorítmico activado:", geminiError);
-            if (tarjetasRecomendadas.length === 0) {
-                respuestaIA = "Como tu asistente estoy preparado para indicarte tableros, perdona si no tengo una respuesta para eso.";
+            console.error("Fallback algorítmico activado por error en Gemini:", geminiError);
+
+            if (recomendacionesLocales.length === 0) {
+                respuestaIA = "Como tu asistente estoy preparado para indicarte tableros y archivos de datos, perdona si no tengo una respuesta para eso.";
             } else {
-                const principal = tarjetasRecomendadas[0];
-                respuestaIA = `*(Sugerencia generada por motor de respaldo)* He ubicado el directorio analítico ideal para tu consulta. Te recomiendo revisar el tablero **${principal.nombre}**.`;
+                const principal = recomendacionesLocales[0];
+                const nombreRecurso = principal.nombre || principal.nombreCarpeta || 'recurso sugerido';
+                respuestaIA = `*(Sugerencia generada por motor de respaldo)* He ubicado el recurso ideal para tu consulta. Te recomiendo revisar **${nombreRecurso}**.`;
             }
         }
 
+        // 4. Respuesta estandarizada
         return res.status(200).json({
-            message: respuestaIA, 
-            data: tarjetasRecomendadas 
+            respuesta: respuestaIA,
+            recomendaciones: recomendacionesLocales
         });
 
     } catch (error) {
-        console.error("Error crítico en el motor de recomendaciones:", error);
-        return res.status(500).json({ message: "Error interno del servidor" });
+        console.error("Error crítico en el controlador del agente:", error);
+        return res.status(500).json({ message: "Error interno al procesar la solicitud con la IA" });
     }
 };

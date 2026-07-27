@@ -1,3 +1,5 @@
+//rawdata.controller.js
+
 import RawData from '../raw_data/rawdata.model.js';
 
 // ==========================================
@@ -48,7 +50,7 @@ export const getRawDataById = async (req, res) => {
 export const addRawData = async (req, res) => {
     try {
         // AHORA RECIBIMOS 'nombreCarpeta' en lugar de 'periodo'
-        const { nombreCarpeta, descripcion, contenido } = req.body;
+        const { nombreCarpeta, descripcion, contenido, resumenIA } = req.body;
 
         // Validación
         if (!nombreCarpeta) {
@@ -58,6 +60,7 @@ export const addRawData = async (req, res) => {
         const nuevoRegistro = await RawData.create({
             nombreCarpeta,
             descripcion: descripcion || '',
+            resumenIA: resumenIA || '',
             contenido: contenido || [] 
         });
 

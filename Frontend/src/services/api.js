@@ -108,7 +108,7 @@ export const deleteDashboard = async(id)=>{
 //Obtener recomendación según usuario
 export const getRecommendations = async(prompt)=>{
     try {
-        const res = await apiDashboard.post('/dashboardRecommendation', {prompt})
+        const res = await apiDashboard.post('/ianRecomendation', {prompt})
         return res.data
     } catch (error) {
         return {
