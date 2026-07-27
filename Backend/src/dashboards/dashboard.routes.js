@@ -9,6 +9,6 @@ api.get('/searchDashboards/:id', getDashboardById)//
 api.post('/addDashboard', addDashboard)//
 api.put('/updateDashboard/:id', updateDashboard)//
 api.delete('/deleteDashboard/:id', deleteDashboard)//
-api.post('/ianRecomendation', ianAgent)//
+api.post('/ianRecommendation', ianAgent)//
 
 export default api;

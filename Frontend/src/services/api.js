@@ -1,22 +1,19 @@
 import axios from "axios";
 
-const render_url = import.meta.env.VITE_API_URL || "https://ian-4xua.onrender.com"
+const render_url = "http://localhost:3200"// import.meta.env.VITE_API_URL || "https://ian-4xua.onrender.com"
 
 const apiDashboard = axios.create({
     baseURL: render_url,
-    //baseURL: 'http://localhost:3200',
     timeout: 75000
 })
 
 const apiAuth = axios.create({
     baseURL: `${render_url}/auth`,
-    //baseURL: 'http://localhost:3200/auth',
     timeout: 75000
 })
 
 const apiUser = axios.create({
     baseURL: `${render_url}/user`,
-    //baseURL: 'http://localhost:3200/user',
     timeout: 75000
 })
 
@@ -108,11 +105,13 @@ export const deleteDashboard = async(id)=>{
 //Obtener recomendación según usuario
 export const getRecommendations = async(prompt)=>{
     try {
-        const res = await apiDashboard.post('/ianRecomendation', {prompt})
+        const res = await apiDashboard.post('/ianRecommendation', {prompt})
         return res.data
     } catch (error) {
+        console.error("Axios falló al llamar a ianRecommendation: ", error)
         return {
             error: true,
+            message: error.response?.data?.message || 'Error de conexión',
             error
         }
     }

@@ -11,7 +11,7 @@ export default function Home() {
   // ==========================================
   const [query, setQuery] = useState('');
 
-// ESTADO INICIAL CON PERSISTENCIA EN LOCALSTORAGE
+  // ESTADO INICIAL CON PERSISTENCIA EN LOCALSTORAGE
   const [messages, setMessages] = useState(() => {
       // 1. Intentamos leer el historial guardado previamente
       const savedMessages = localStorage.getItem('ian_chat_history');
@@ -34,6 +34,11 @@ export default function Home() {
 
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // Auto-scroll al final del chat
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isTyping]);
 
   // Guarda en localStorage automáticamente cada vez que cambia el estado 'messages'
   useEffect(() => {
@@ -71,13 +76,15 @@ export default function Home() {
     try {
       const result = await getRecommendations(userPrompt);
 
-      if (!result.error && result.message) {
-        const formattedMessage = result.message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // 💡 CORREGIDO: Leemos result.respuesta que viene de Express
+      if (!result.error && result.respuesta) {
+        const textoLimpio = String(result.respuesta || '');
+        const formattedMessage = textoLimpio.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         
         setMessages(prev => [...prev, {
           role: 'agent',
           text: formattedMessage,
-          recommendedTableros: result.data || []
+          recommendedTableros: result.recomendaciones || [] // 👈 CORREGIDO: result.recomendaciones
         }]);
       } else {
         setMessages(prev => [...prev, {
@@ -86,6 +93,7 @@ export default function Home() {
         }]);
       }
     } catch (error) {
+      console.error("Error al procesar mensaje:", error);
       setMessages(prev => [...prev, {
         role: 'agent',
         text: 'Ocurrió un error inesperado al procesar tu solicitud.'
@@ -96,17 +104,15 @@ export default function Home() {
   };
 
   return (
-    // CONTENEDOR PRINCIPAL: Altura calculada para no hacer scroll en la ventana entera
+    // CONTENEDOR PRINCIPAL
     <div className="max-w-7xl mx-auto w-full space-y-6 p-4 sm:p-6 text-admosa-dark">
       
       {/* ========================================== */}
-      {/* HEADER: BIENVENIDA Y MÉTRICAS (EX HOME) */}
+      {/* HEADER: BIENVENIDA Y MÉTRICAS */}
       {/* ========================================== */}
       <div className="bg-white rounded-2xl shadow-sm border border-admosa-dark/10 p-4 shrink-0 flex flex-col lg:flex-row justify-between items-center gap-4 relative overflow-hidden">
-        {/* Efecto visual sutil */}
         <div className="absolute -left-20 -top-20 w-64 h-64 bg-admosa-blue/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Bienvenida */}
         <div className="flex items-center gap-4 z-10 w-full lg:w-auto">
           <div className="p-3 bg-linear-to-br from-admosa-blue/10 to-admosa-purple/10 border border-admosa-blue/20 rounded-xl shadow-sm shrink-0">
             <BotMessageSquare className="w-8 h-8 text-admosa-blue drop-shadow-sm" />
@@ -121,7 +127,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Métricas Rápidas */}
         <div className="flex gap-2 w-full lg:w-auto overflow-x-auto hide-scrollbar pb-1 lg:pb-0 z-10">
           <div className="bg-admosa-gray/50 px-4 py-2 rounded-xl border border-admosa-dark/5 text-center shrink-0">
             <span className="text-[9px] font-bold text-admosa-dark/50 uppercase tracking-wider block">Región</span>
@@ -197,36 +202,62 @@ export default function Home() {
                 }`}>
                   <div dangerouslySetInnerHTML={{ __html: msg.text }} className="wrap-break-word" />
 
-                  {/* Grid dinámico de tableros recomendados */}
+                  {/* Grid dinámico de recursos recomendados (Tableros o Raw Data) */}
                   {msg.recommendedTableros && msg.recommendedTableros.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2 w-full">
-                      {msg.recommendedTableros.map((tab) => (
-                        <div key={tab.codigo} className="bg-admosa-gray/30 border border-admosa-dark/5 p-3 rounded-xl shadow-xs flex flex-col justify-between space-y-2.5 text-left w-full overflow-hidden">
-                          <div>
-                            <div className="flex items-center justify-between text-[9px]">
-                              <span className="font-extrabold text-admosa-dark/40">{tab.codigo}</span>
-                              <span className="font-bold px-1.5 py-0.5 rounded-full bg-white text-admosa-blue border border-admosa-blue/10 uppercase tracking-wider">{tab.pais}</span>
+                      {msg.recommendedTableros.map((item, idx) => {
+                        const esRawData = !!item.nombreCarpeta;
+                        const titulo = item.nombre || item.nombreCarpeta || 'Recurso Sugerido';
+                        const codigo = item.codigo || (esRawData ? 'RAW-DATA' : 'INFO');
+                        const etiqueta = item.pais || (esRawData ? 'Carpeta / Archivo' : 'General');
+                        const enlace = item.url || '#';
+
+                        return (
+                          <div key={item._id || item.codigo || idx} className="bg-admosa-gray/30 border border-admosa-dark/5 p-3 rounded-xl shadow-xs flex flex-col justify-between space-y-2.5 text-left w-full overflow-hidden">
+                            <div>
+                              <div className="flex items-center justify-between text-[9px]">
+                                <span className="font-extrabold text-admosa-dark/40">{codigo}</span>
+                                <span className="font-bold px-1.5 py-0.5 rounded-full bg-white text-admosa-blue border border-admosa-blue/10 uppercase tracking-wider">{etiqueta}</span>
+                              </div>
+                              <h4 className="font-bold text-admosa-dark text-xs mt-1 truncate" title={titulo}>{titulo}</h4>
+                              <p className="text-[11px] text-admosa-dark/60 mt-0.5 line-clamp-2 leading-tight">
+                                {item.descripcion || item.resumenIA || 'Sin descripción disponible.'}
+                              </p>
                             </div>
-                            <h4 className="font-bold text-admosa-dark text-xs mt-1 truncate" title={tab.nombre}>{tab.nombre}</h4>
-                            <p className="text-[11px] text-admosa-dark/60 mt-0.5 line-clamp-2 leading-tight">{tab.descripcion}</p>
+
+                            <div className="flex items-center justify-between gap-2 pt-2 border-t border-admosa-dark/5">
+                              <button className="text-[10px] text-admosa-purple font-bold hover:underline flex items-center gap-0.5">
+                                <Info className="w-3 h-3" />
+                                <span>Detalles</span>
+                              </button>
+
+                              {/* 💡 SI ES RAW DATA: Navega internamente pasando el ID */}
+                              {esRawData ? (
+                                <button
+                                  onClick={() => navigate('/rawdata', { state: { selectedLoteId: item._id } })}
+                                  className="text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2 py-1 rounded-md flex items-center gap-1 transition-all"
+                                >
+                                  <span>Explorar</span>
+                                  <ExternalLink className="w-2.5 h-2.5" />
+                                </button>
+                              ) : (
+                                /* SI ES TABLERO: Abre el link de Power BI en pestaña nueva */
+                                enlace !== '#' && (
+                                  <a 
+                                    href={enlace} 
+                                    target="_blank" 
+                                    rel="noreferrer" 
+                                    className="text-[10px] bg-admosa-blue hover:bg-admosa-blue/90 text-white font-bold px-2 py-1 rounded-md flex items-center gap-1 transition-all"
+                                  >
+                                    <span>Acceder</span>
+                                    <ExternalLink className="w-2.5 h-2.5" />
+                                  </a>
+                                )
+                              )}
+                            </div>
                           </div>
-                          <div className="flex items-center justify-between gap-2 pt-2 border-t border-admosa-dark/5">
-                            <button className="text-[10px] text-admosa-purple font-bold hover:underline flex items-center gap-0.5">
-                              <Info className="w-3 h-3" />
-                              <span>Detalles</span>
-                            </button>
-                            <a 
-                              href={tab.url} 
-                              target="_blank" 
-                              rel="noreferrer" 
-                              className="text-[10px] bg-admosa-blue hover:bg-admosa-blue/90 text-white font-bold px-2 py-1 rounded-md flex items-center gap-1 transition-all"
-                            >
-                              <span>Acceder</span>
-                              <ExternalLink className="w-2.5 h-2.5" />
-                            </a>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -273,7 +304,7 @@ export default function Home() {
         {/* ========================================== */}
         <div className="w-full lg:w-80 p-4 bg-admosa-gray flex flex-col space-y-5 overflow-y-auto shrink-0 border-t lg:border-t-0 lg:border-l border-admosa-dark/10 order-2 max-h-[35%] lg:max-h-none">
           
-          {/* ACCESOS RÁPIDOS (Mudados del Home Anterior) */}
+          {/* ACCESOS RÁPIDOS */}
           <div className="space-y-2">
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-admosa-dark/40">Navegación</h4>
             <div className="grid grid-cols-2 gap-2">

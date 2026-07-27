@@ -34,6 +34,7 @@ export default function AgentIAN() {
     ]);
   };
 
+  // En AgentIAN.jsx
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!query.trim()) return;
@@ -44,11 +45,17 @@ export default function AgentIAN() {
     setMessages(prev => [...prev, { role: 'user', text: userPrompt }]);
     setIsTyping(true);
 
+    // En AgentIAN.jsx, dentro de handleSubmit:
+
     try {
       const result = await getRecommendations(userPrompt);
 
+      console.log("🔥 RESULTADO LLEGANDO AL COMPONENTE:", result);
+
       if (!result.error && result.respuesta) {
-        const formattedMessage = result.respuesta.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // 💡 Aseguramos que result.respuesta sea un string válido antes de aplicar .replace()
+        const textoRespuesta = String(result.respuesta || '');
+        const formattedMessage = textoRespuesta.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         
         setMessages(prev => [...prev, {
           role: 'agent',
@@ -62,6 +69,7 @@ export default function AgentIAN() {
         }]);
       }
     } catch (error) {
+      console.error("💥 CATCH DEL FRONTEND:", error); // 👈 Revisa la consola si cae aquí
       setMessages(prev => [...prev, {
         role: 'agent',
         text: 'Ocurrió un error inesperado al procesar tu solicitud.'

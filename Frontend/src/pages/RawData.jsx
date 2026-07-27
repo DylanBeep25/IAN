@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Folder, FileText, FileSpreadsheet, Image as ImageIcon, ChevronRight, Download, FolderArchive, Loader2, Search, ArrowLeft, FolderOpen } from 'lucide-react';
 import { getRawData } from '../services/api.js';
 import toast from 'react-hot-toast';
+import { useLocation } from 'react-router-dom';
 
 // ==========================================
-// 1. EL COMPONENTE EXPLORADOR DE ARCHIVOS (Unificado en una sola tarjeta)
+// 1. EL COMPONENTE EXPLORADOR DE ARCHIVOS
 // ==========================================
 const FileExplorer = ({ rootName, content }) => {
     const [path, setPath] = useState([]);
@@ -110,6 +111,8 @@ const RawData = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
+    const location = useLocation(); // 👈 Capturamos la navegación
+
     useEffect(() => {
         const fetchDatos = async () => {
             setIsLoading(true);
@@ -117,6 +120,15 @@ const RawData = () => {
                 const res = await getRawData();
                 if (!res.error && res.data) {
                     setLotes(res.data);
+
+                    // 💡 SI VENIMOS DESDE EL CHAT CON UN ID DE CARPETA:
+                    const targetId = location.state?.selectedLoteId;
+                    if (targetId) {
+                        const loteEncontrado = res.data.find(l => l._id === targetId);
+                        if (loteEncontrado) {
+                            setSelectedLote(loteEncontrado);
+                        }
+                    }
                 } else {
                     toast.error(res.message || 'Error al cargar los archivos');
                 }
@@ -128,7 +140,7 @@ const RawData = () => {
         };
 
         fetchDatos();
-    }, []);
+    }, [location.state]); // 👈 Se ejecuta al cargar o cambiar de estado de navegación
 
     const filteredLotes = lotes.filter(lote => 
         lote.nombreCarpeta?.toLowerCase().includes(searchTerm.toLowerCase()) || 
