@@ -19,7 +19,8 @@ import { defaultAdmin } from "../src/User/user.controller.js";
 const allowedOrigins = [
     'http://localhost:5174',
     'http://localhost:5173',
-    'https://ian-git-main-dylans-projects-0757b7ba.vercel.app'
+    'https://ian-git-main-dylans-projects-0757b7ba.vercel.app',
+    'https://ian-swart-kappa.vercel.app'
 ]
 
 const configs = (app)=>{
