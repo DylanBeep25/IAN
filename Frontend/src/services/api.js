@@ -103,17 +103,21 @@ export const deleteDashboard = async(id)=>{
 
 
 //Obtener recomendación según usuario
-export const getRecommendations = async(prompt)=>{
+export const getRecommendations = async(prompt, chatHistory = []) => {
     try {
-        const res = await apiDashboard.post('/ianRecommendation', {prompt})
-        return res.data
+        // Añadimos chatHistory al cuerpo de la petición
+        const res = await apiDashboard.post('/ianRecommendation', { 
+            prompt, 
+            chatHistory 
+        });
+        return res.data;
     } catch (error) {
-        console.error("Axios falló al llamar a ianRecommendation: ", error)
+        console.error("Axios falló al llamar a ianRecommendation: ", error);
         return {
             error: true,
             message: error.response?.data?.message || 'Error de conexión',
             error
-        }
+        };
     }
 }
 
