@@ -144,21 +144,28 @@ export const deleteDashboard = async (req, res) => {
 // ==========================================
 export const ianAgent = async (req, res) => {
     try {
-        const { prompt } = req.body;
+        // 1. Extraemos el prompt y el historial del frontend
+        const { prompt, chatHistory } = req.body; 
+        
         if (!prompt) {
             return res.status(400).json({ message: "El prompt es requerido" });
         }
 
-        // 1. Obtener todas las bases de conocimiento en paralelo (Rápido y eficiente)
+        // 2. Si no viene el historial, creamos uno temporal solo con el prompt para evitar el error
+        const historialParaMotor = (chatHistory && Array.isArray(chatHistory)) 
+            ? chatHistory 
+            : [prompt];
+
+        // 3. Obtener todas las bases de conocimiento en paralelo
         const [dbTableros, dbSynonyms, dbRawData] = await Promise.all([
             Dashboard.find().lean(),
             Synonyms.find().lean(),
             RawData.find().select('nombreCarpeta descripcion resumenIA').lean()
         ]);
 
-        // 2. Ejecutar motor de recomendaciones local
+        // 4. Ejecutar motor de recomendaciones local enviando el ARREGLO
         const recomendacionesLocales = getLocalRecommendations(
-            prompt,
+            historialParaMotor, // <--- AQUÍ ESTÁ LA CORRECCIÓN
             dbTableros,
             dbSynonyms,
             dbRawData
@@ -166,10 +173,10 @@ export const ianAgent = async (req, res) => {
 
         let respuestaIA = "";
 
-        // 3. Consultar a Gemini con fallback en caso de error
+        // 5. Consultar a Gemini (asegúrate de que esta función también acepte el historial si es necesario)
         try {
             respuestaIA = await consultarGeminiEnServidor(
-                prompt,
+                prompt, // O pásale el historial si Gemini también pierde contexto
                 dbTableros,
                 dbSynonyms,
                 dbRawData
@@ -186,7 +193,7 @@ export const ianAgent = async (req, res) => {
             }
         }
 
-        // 4. Respuesta estandarizada
+        // 6. Respuesta estandarizada
         return res.status(200).json({
             respuesta: respuestaIA,
             recomendaciones: recomendacionesLocales
