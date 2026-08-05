@@ -13,7 +13,6 @@ export default function Home() {
 
   // ESTADO INICIAL CON PERSISTENCIA EN LOCALSTORAGE
   const [messages, setMessages] = useState(() => {
-      // 1. Intentamos leer el historial guardado previamente
       const savedMessages = localStorage.getItem('ian_chat_history');
       if (savedMessages) {
           try {
@@ -22,7 +21,6 @@ export default function Home() {
               console.error("Error al parsear el historial:", error);
           }
       }
-      // 2. Si no hay nada guardado, usamos el mensaje de bienvenida por defecto
       return [
           {
               role: 'agent',
@@ -60,7 +58,7 @@ export default function Home() {
           }
       ];
       setMessages(initialMessage);
-      localStorage.removeItem('ian_chat_history'); // Borra la persistencia en el navegador
+      localStorage.removeItem('ian_chat_history');
   };
 
   const handleSubmit = async (e) => {
@@ -70,20 +68,21 @@ export default function Home() {
     const userPrompt = query.trim();
     setQuery('');
     
-    // 💡 NUEVO: Preparamos el historial de textos para el backend
-    // Extraemos el texto de todos los mensajes anteriores
-    const historialTextos = messages.map(msg => msg.text);
-    // Agregamos la consulta actual al final de la lista
-    historialTextos.push(userPrompt);
+    // 🚀 CAMBIO CRÍTICO: Formatear el historial con ROLES
+    // Filtramos el mensaje de bienvenida inicial si queremos, o simplemente mapeamos todo.
+    // Convertimos 'agent' a 'model' (que es lo que entiende Gemini) y 'user' a 'user'.
+    const chatHistoryFormat = messages.map(msg => ({
+      role: msg.role === 'agent' ? 'model' : 'user',
+      content: msg.text // Nuestro backend ahora espera leer 'content'
+    }));
 
     setMessages(prev => [...prev, { role: 'user', text: userPrompt }]);
     setIsTyping(true);
 
     try {
-      // 💡 CORREGIDO: Pasamos el userPrompt Y el historialTextos
-      const result = await getRecommendations(userPrompt, historialTextos);
+      // Enviamos el historial correctamente estructurado
+      const result = await getRecommendations(userPrompt, chatHistoryFormat);
 
-      // 💡 CORREGIDO: Leemos result.respuesta que viene de Express
       if (!result.error && result.respuesta) {
         const textoLimpio = String(result.respuesta || '');
         const formattedMessage = textoLimpio.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -96,7 +95,7 @@ export default function Home() {
       } else {
         setMessages(prev => [...prev, {
           role: 'agent',
-          text: 'Lo siento, no logro establecer conexión con el motor analítico en el backend.'
+          text: result.message || 'Lo siento, no logro establecer conexión con el motor analítico en el backend.'
         }]);
       }
     } catch (error) {
@@ -209,7 +208,7 @@ export default function Home() {
                 }`}>
                   <div dangerouslySetInnerHTML={{ __html: msg.text }} className="wrap-break-word" />
 
-                  {/* Grid dinámico de recursos recomendados (Tableros o Raw Data) */}
+                  {/* Grid dinámico de recursos recomendados */}
                   {msg.recommendedTableros && msg.recommendedTableros.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2 w-full">
                       {msg.recommendedTableros.map((item, idx) => {
@@ -238,7 +237,6 @@ export default function Home() {
                                 <span>Detalles</span>
                               </button>
 
-                              {/* 💡 SI ES RAW DATA: Navega internamente pasando el ID */}
                               {esRawData ? (
                                 <button
                                   onClick={() => navigate('/rawdata', { state: { selectedLoteId: item._id } })}
@@ -248,7 +246,6 @@ export default function Home() {
                                   <ExternalLink className="w-2.5 h-2.5" />
                                 </button>
                               ) : (
-                                /* SI ES TABLERO: Abre el link de Power BI en pestaña nueva */
                                 enlace !== '#' && (
                                   <a 
                                     href={enlace} 
