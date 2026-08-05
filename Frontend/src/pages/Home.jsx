@@ -70,11 +70,18 @@ export default function Home() {
     const userPrompt = query.trim();
     setQuery('');
     
+    // 💡 NUEVO: Preparamos el historial de textos para el backend
+    // Extraemos el texto de todos los mensajes anteriores
+    const historialTextos = messages.map(msg => msg.text);
+    // Agregamos la consulta actual al final de la lista
+    historialTextos.push(userPrompt);
+
     setMessages(prev => [...prev, { role: 'user', text: userPrompt }]);
     setIsTyping(true);
 
     try {
-      const result = await getRecommendations(userPrompt);
+      // 💡 CORREGIDO: Pasamos el userPrompt Y el historialTextos
+      const result = await getRecommendations(userPrompt, historialTextos);
 
       // 💡 CORREGIDO: Leemos result.respuesta que viene de Express
       if (!result.error && result.respuesta) {
@@ -84,7 +91,7 @@ export default function Home() {
         setMessages(prev => [...prev, {
           role: 'agent',
           text: formattedMessage,
-          recommendedTableros: result.recomendaciones || [] // 👈 CORREGIDO: result.recomendaciones
+          recommendedTableros: result.recomendaciones || []
         }]);
       } else {
         setMessages(prev => [...prev, {
