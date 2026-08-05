@@ -1,5 +1,5 @@
 import axios from "axios";
-
+//http://localhost:3200
 const render_url = import.meta.env.VITE_API_URL || "https://ian-4xua.onrender.com"
 
 const apiDashboard = axios.create({
@@ -357,3 +357,107 @@ export const deleteUser = async(id)=>{
         }
     }
 }
+
+
+// --------- TAREAS ---------------------------------------------------
+
+export const getTasks = async (params = {}) => {
+    try {
+        const res = await apiUser.get('/tasks', { params });
+        return res.data;
+    } catch (error) {
+        return {
+            error: true,
+            message: error.response?.data?.message || 'Error al obtener las tareas'
+        };
+    }
+};
+
+
+export const createTask = async (taskData) => {
+    try {
+        const res = await apiUser.post('/createTask', taskData);
+        return res.data;
+    } catch (error) {
+        return {
+            error: true,
+            message: error.response?.data?.message || 'Error al crear el registro'
+        };
+    }
+};
+
+export const updateTask = async (id, updatedData) => {
+    try {
+        const res = await apiUser.put(`/updateTask/${id}`, updatedData);
+        return res.data;
+    } catch (error) {
+        return {
+            error: true,
+            message: error.response?.data?.message || 'Error al actualizar el registro'
+        };
+    }
+};
+
+export const deleteTask = async (id) => {
+    try {
+        const res = await apiUser.delete(`/deleteTask/${id}`);
+        return res.data;
+    } catch (error) {
+        return {
+            error: true,
+            message: error.response?.data?.message || 'Error al eliminar el registro'
+        };
+    }
+};
+
+
+export const getWeeklySummary = async () => {
+    try {
+        const res = await apiUser.get('/summary');
+        return res.data;
+    } catch (error) {
+        return {
+            error: true,
+            message: error.response?.data?.message || 'Error al obtener el resumen semanal'
+        };
+    }
+};
+
+
+export const getUserTemplates = async () => {
+    try {
+        const res = await apiUser.get('/templates');
+        return res.data;
+    } catch (error) {
+        return {
+            error: true,
+            message: error.response?.data?.message || 'Error al obtener las plantillas'
+        };
+    }
+};
+
+
+export const exportTasksToExcel = async () => {
+    try {
+        const res = await apiUser.get('/toExcel', {
+            responseType: 'blob'
+        });
+
+        // Crear una URL temporal para gatillar la descarga en el navegador
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `Reporte_Actividades_IAN_${new Date().toISOString().split('T')[0]}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+
+        return { success: true };
+    } catch (error) {
+        return {
+            error: true,
+            message: 'Error al exportar el archivo Excel'
+        };
+    }
+};

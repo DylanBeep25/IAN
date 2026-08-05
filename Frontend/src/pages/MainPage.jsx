@@ -15,6 +15,7 @@ import { AdminRawData } from "./Admin/AdminRawData.jsx";
 import { AdminSynonyms } from "./Admin/AdminGlossary.jsx";
 import { AdminUsers } from "./Admin/AdminUsers.jsx";
 import UserProfile from "./Admin/UserProfile.jsx";
+import TasksPage from "./Admin/taskPage.jsx";
 
 export const MainPage = () => {
     const [sidebarAbierto, setSidebarAbierto] = useState(false);
@@ -99,6 +100,11 @@ export const MainPage = () => {
                         <Route 
                             path="/admin/glosario" 
                             element={isAdmin ? <AdminSynonyms /> : <Navigate to="/home" replace />} 
+                        />
+
+                        <Route 
+                            path="/admin/tasks" 
+                            element={isAdmin ? <TasksPage /> : <Navigate to="/home" replace />} 
                         />
 
                         {/* REDIRECCIONES POR DEFECTO */}

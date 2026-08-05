@@ -208,7 +208,7 @@ export default function Home() {
                       {msg.recommendedTableros.map((item, idx) => {
                         const esRawData = !!item.nombreCarpeta;
                         const titulo = item.nombre || item.nombreCarpeta || 'Recurso Sugerido';
-                        const codigo = item.codigo || (esRawData ? 'RAW-DATA' : 'INFO');
+                        const codigo = item.codigo || (esRawData ? 'Carpeta de información' : 'INFO');
                         const etiqueta = item.pais || (esRawData ? 'Carpeta / Archivo' : 'General');
                         const enlace = item.url || '#';
 

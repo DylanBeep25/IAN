@@ -14,6 +14,7 @@ import synonymsRoutes from '../src/synonyms/synonyms.routes.js'
 import rawdataRoutes from '../src/raw_data/rawdata.routes.js'
 import userRoutes from '../src/User/user.routes.js'
 import authRoutes from '../src/auth/auth.routes.js'
+import taskRoutes from "../src/Tasks/task.routes.js"
 import { defaultAdmin } from "../src/User/user.controller.js";
 
 const allowedOrigins = [
@@ -43,6 +44,7 @@ const routes = (app) =>{
     app.use(rawdataRoutes)
     app.use('/auth',authRoutes)
     app.use('/user',userRoutes)
+    app.use('/user', taskRoutes)
 }
 
 export const initServer = () =>{

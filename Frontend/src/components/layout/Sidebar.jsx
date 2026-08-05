@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Home, LayoutGrid, BotMessageSquare, BookOpen, Users, LogOut, LogIn, Database, Settings, BarChart2, FolderBookmark, ShieldAlert, ShieldCheck, UserCog } from 'lucide-react';
+import { Home, LayoutGrid, BotMessageSquare, BookOpen, Users, LogOut, LogIn, Database, Settings, BarChart2, FolderBookmark, ShieldAlert, ShieldCheck, UserCog, BookCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function Sidebar({ alNavegar }) {
@@ -48,6 +48,9 @@ export default function Sidebar({ alNavegar }) {
                 <NavLink to="/admin/rutas" className={navLinkClass} onClick={alNavegar}>
                   <Database className="w-5 h-5 shrink-0" />
                   <span>Admin. de Rutas</span>
+                </NavLink><NavLink to="/admin/tasks" className={navLinkClass} onClick={alNavegar}>
+                  <BookCheck className="w-5 h-5 shrink-0" />
+                  <span>Reporte de tareas</span>
                 </NavLink>
                 
                 {/* Gestión de Usuarios (Ruta dentro del namespace /admin/usuarios) */}
