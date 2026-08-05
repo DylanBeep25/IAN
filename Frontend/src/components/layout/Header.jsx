@@ -30,7 +30,7 @@ export default function Header({ onToggleSidebar, isSidebarOpen }) {
             </a>
           </div>
           
-          <div className="flex items-center space-x-3 border-t sm:border-t-0 sm:border-l border-white/10 pt-3 sm:pt-0 sm:pl-4">
+          <div className="flex justify-center sm:justify-start items-center space-x-3 w-full sm:w-auto border-t sm:border-t-0 sm:border-l border-white/10 pt-3 sm:pt-0 sm:pl-4">
             <div className="shrink-0">
               <img 
                 src={GI}
@@ -38,7 +38,7 @@ export default function Header({ onToggleSidebar, isSidebarOpen }) {
                 className="w-8 sm:w-15 h-auto object-contain" 
               />
             </div>
-            <div>
+            <div className="text-left">
               <h1 className="text-sm sm:text-xl font-bold leading-tight">
                 IAN — Directorio Inteligente
               </h1>
