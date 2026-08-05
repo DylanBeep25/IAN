@@ -1,7 +1,8 @@
 // src/tableros/tablero.controller.js
-import { getLocalRecommendations } from '../../utils/searchEngine.js';
-import { formatMarkdownText } from '../../utils/helpers.js';
-import { consultarGeminiEnServidor } from '../../utils/geminiClient.js';
+import { getLocalRecommendations } from '../../utils/searchEngine.js'
+import { formatMarkdownText } from '../../utils/helpers.js'
+import { consultarGeminiEnServidor } from '../../utils/geminiClient.js'
+import { buildLightweightCatalog, formatChatHistoryForGemini } from '../../utils/contextBuilder.js'
 import Dashboard from './dashboard.model.js';
 import Synonyms from '../synonyms/synonyms.model.js'
 import RawData from '../raw_data/rawdata.model.js';
@@ -144,63 +145,71 @@ export const deleteDashboard = async (req, res) => {
 // ==========================================
 export const ianAgent = async (req, res) => {
     try {
-        // 1. Extraemos el prompt y el historial del frontend
         const { prompt, chatHistory } = req.body; 
         
         if (!prompt) {
             return res.status(400).json({ message: "El prompt es requerido" });
         }
 
-        // 2. Si no viene el historial, creamos uno temporal solo con el prompt para evitar el error
-        const historialParaMotor = (chatHistory && Array.isArray(chatHistory)) 
-            ? chatHistory 
-            : [prompt];
-
-        // 3. Obtener todas las bases de conocimiento en paralelo
+        // 1. Obtener todas las bases de conocimiento
         const [dbTableros, dbSynonyms, dbRawData] = await Promise.all([
             Dashboard.find().lean(),
             Synonyms.find().lean(),
-            RawData.find().select('nombreCarpeta descripcion resumenIA').lean()
+            RawData.find().lean() // Traemos todo, pero lo filtraremos
         ]);
 
-        // 4. Ejecutar motor de recomendaciones local enviando el ARREGLO
-        const recomendacionesLocales = getLocalRecommendations(
-            historialParaMotor, // <--- AQUÍ ESTÁ LA CORRECCIÓN
-            dbTableros,
-            dbSynonyms,
-            dbRawData
-        );
+        // 2. Preparar el contexto optimizado para el LLM
+        const catalogoLigero = buildLightweightCatalog(dbTableros, dbRawData);
+        const historialFormateado = formatChatHistoryForGemini(chatHistory || []);
 
-        let respuestaIA = "";
-
-        // 5. Consultar a Gemini (asegúrate de que esta función también acepte el historial si es necesario)
+        // 3. Consultar a la IA como CEREBRO ÚNICO
+        let iaDecision;
         try {
-            respuestaIA = await consultarGeminiEnServidor(
-                prompt, // O pásale el historial si Gemini también pierde contexto
-                dbTableros,
-                dbSynonyms,
-                dbRawData
+            iaDecision = await consultarGeminiEnServidor(
+                prompt, 
+                historialFormateado, 
+                catalogoLigero, 
+                dbSynonyms
             );
+            // Log para debug interno (muy útil ver qué pensó la IA)
+            console.log("💭 Razón IAN:", iaDecision.analisis_interno);
         } catch (geminiError) {
-            console.error("Fallback algorítmico activado por error en Gemini:", geminiError);
-
-            if (recomendacionesLocales.length === 0) {
-                respuestaIA = "Como tu asistente estoy preparado para indicarte tableros y archivos de datos, perdona si no tengo una respuesta para eso.";
-            } else {
-                const principal = recomendacionesLocales[0];
-                const nombreRecurso = principal.nombre || principal.nombreCarpeta || 'recurso sugerido';
-                respuestaIA = `*(Sugerencia generada por motor de respaldo)* He ubicado el recurso ideal para tu consulta. Te recomiendo revisar **${nombreRecurso}**.`;
-            }
+            console.error("Error crítico en Gemini:", geminiError);
+            return res.status(503).json({ 
+                respuesta: "En este momento estoy experimentando problemas de conexión con mis servidores cognitivos. Por favor intenta en unos segundos.",
+                recomendaciones: []
+            });
         }
 
-        // 6. Respuesta estandarizada
+        // 4. Mapear los IDs seleccionados por la IA con los objetos reales de la BD
+        const recomendacionesReales = [];
+        const { ids_seleccionados, respuesta_agente } = iaDecision;
+
+        if (ids_seleccionados && ids_seleccionados.length > 0) {
+            ids_seleccionados.forEach(id => {
+                // Buscar primero en Tableros (por codigo o por _id)
+                let recurso = dbTableros.find(t => t.codigo === id || t._id.toString() === id);
+                
+                // Si no está, buscar en RawData
+                if (!recurso) {
+                    recurso = dbRawData.find(r => r._id.toString() === id);
+                }
+
+                // Validación final de seguridad: Solo devolver si realmente existe en BD
+                if (recurso) {
+                    recomendacionesReales.push(recurso);
+                }
+            });
+        }
+
+        // 5. Respuesta estandarizada y 100% SINCRONIZADA
         return res.status(200).json({
-            respuesta: respuestaIA,
-            recomendaciones: recomendacionesLocales
+            respuesta: respuesta_agente,
+            recomendaciones: recomendacionesReales
         });
 
     } catch (error) {
         console.error("Error crítico en el controlador del agente:", error);
-        return res.status(500).json({ message: "Error interno al procesar la solicitud con la IA" });
+        return res.status(500).json({ message: "Error interno al procesar la solicitud." });
     }
 };
