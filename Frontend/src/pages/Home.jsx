@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BotMessageSquare, Bot, Send, Trash2, User, Info, ExternalLink, LayoutGrid, Folder } from 'lucide-react';
 import { getRecommendations } from '../services/api.js';
+import IAN from '../assets/IAN_LOGO_V4 - Editado.png'
+
 
 export default function Home() {
   const navigate = useNavigate();
@@ -121,7 +123,7 @@ export default function Home() {
 
         <div className="flex items-center gap-4 z-10 w-full lg:w-auto">
           <div className="p-3 bg-linear-to-br from-admosa-blue/10 to-admosa-purple/10 border border-admosa-blue/20 rounded-xl shadow-sm shrink-0">
-            <BotMessageSquare className="w-8 h-8 text-admosa-blue drop-shadow-sm" />
+            <img src={IAN} alt="" className="w-8 sm:w-12 h-auto object-contain"/>
           </div>
           <div>
             <h2 className="text-xl md:text-2xl font-black text-admosa-dark tracking-tight leading-none">
@@ -163,7 +165,7 @@ export default function Home() {
           <div className="p-4 border-b border-admosa-dark/10 flex items-center justify-between bg-admosa-gray/50 shrink-0">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-admosa-blue/10 rounded-full flex items-center justify-center text-admosa-blue shadow-sm">
-                <BotMessageSquare className="w-6 h-6 animate-pulse" />
+                <img src={IAN} alt="" className="w-8 sm:w-12 h-auto object-contain"/>
               </div>
               <div>
                 <h3 className="text-sm font-bold text-admosa-dark">IAN-Agent</h3>
@@ -197,7 +199,7 @@ export default function Home() {
                     ? 'bg-admosa-blue/10 text-admosa-blue border-admosa-blue/20' 
                     : 'bg-admosa-purple/10 text-admosa-purple border-admosa-purple/20'
                 }`}>
-                  {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                  {msg.role === 'user' ? <User className="w-4 h-4" /> : <img src={IAN} alt="" className="w-8 sm:w-12 h-auto object-contain"/>}
                 </div>
 
                 {/* Burbuja */}

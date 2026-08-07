@@ -2,6 +2,7 @@ import React from 'react';
 import { Construction, Menu, X } from 'lucide-react';
 import ADMOSA_LOGO_blanco from'../../assets/ADMOSA_LOGO_blanco.png'
 import GI from '../../assets/GI_dos.png'
+import IAN from '../../assets/IAN_LOGO_V4 - Editado.png'
 
 
 export default function Header({ onToggleSidebar, isSidebarOpen }) {
