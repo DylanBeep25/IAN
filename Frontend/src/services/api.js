@@ -1,6 +1,6 @@
 import axios from "axios";
 //"http://localhost:3200"
-const render_url = "http://localhost:3200"//import.meta.env.VITE_API_URL || "https://ian-4xua.onrender.com"
+const render_url = import.meta.env.VITE_API_URL || "https://ian-4xua.onrender.com"
 
 const apiDashboard = axios.create({
     baseURL: render_url,
