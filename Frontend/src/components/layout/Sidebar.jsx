@@ -48,9 +48,6 @@ export default function Sidebar({ alNavegar }) {
                 <NavLink to="/admin/rutas" className={navLinkClass} onClick={alNavegar}>
                   <Database className="w-5 h-5 shrink-0" />
                   <span>Admin. de Rutas</span>
-                </NavLink><NavLink to="/admin/tasks" className={navLinkClass} onClick={alNavegar}>
-                  <BookCheck className="w-5 h-5 shrink-0" />
-                  <span>Reporte de tareas</span>
                 </NavLink>
                 
                 {/* Gestión de Usuarios (Ruta dentro del namespace /admin/usuarios) */}

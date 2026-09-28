@@ -4,18 +4,15 @@ import Sidebar from "../components/layout/Sidebar.jsx";
 import Home from "./Home.jsx";
 import Header from "../components/layout/Header.jsx";
 import AgentIAN from "./AgentIAN.jsx";
-import Glossary from "./Glossary.jsx";
 import Dashboards from "./Dashboards.jsx";
 import RawData from "./RawData.jsx";
 import { Login } from "./Login.jsx";
-import { UsersManager } from "./Full Admin/UserManager.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import {AdminDashboards} from "../pages/Admin/AdminDashboards.jsx"
 import { AdminRawData } from "./Admin/AdminRawData.jsx";
 import { AdminSynonyms } from "./Admin/AdminGlossary.jsx";
 import { AdminUsers } from "./Admin/AdminUsers.jsx";
 import UserProfile from "./Admin/UserProfile.jsx";
-import TasksPage from "./Admin/taskPage.jsx";
 
 export const MainPage = () => {
     const [sidebarAbierto, setSidebarAbierto] = useState(false);
@@ -100,11 +97,6 @@ export const MainPage = () => {
                         <Route 
                             path="/admin/glosario" 
                             element={isAdmin ? <AdminSynonyms /> : <Navigate to="/home" replace />} 
-                        />
-
-                        <Route 
-                            path="/admin/tasks" 
-                            element={isAdmin ? <TasksPage /> : <Navigate to="/home" replace />} 
                         />
 
                         {/* REDIRECCIONES POR DEFECTO */}

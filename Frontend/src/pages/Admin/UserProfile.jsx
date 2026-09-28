@@ -139,7 +139,7 @@ export default function UserProfile() {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-admosa-blue/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
                 
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
-                    <div className="w-24 h-24 rounded-2xl bg-slate-900 text-white font-black flex items-center justify-center text-4xl shadow-lg shrink-0 border-4 border-white outline outline-1 outline-slate-100">
+                    <div className="w-24 h-24 rounded-2xl bg-slate-900 text-white font-black flex items-center justify-center text-4xl shadow-lg shrink-0 border-4 border-white outline-1 outline-slate-100">
                         {userInitial}
                     </div>
                     
